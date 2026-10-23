@@ -1,4 +1,10 @@
 # ai-powered-civic-intelligence
+## 🚀 Live Prototype
+
+**Explore our working dashboard:** https://ai.studio/apps/c374b283-2f75-46cd-9539-e45c4c2d080f
+
+Try our interactive prototype to explore the civic issue reporting dashboard and its features.
+
 ai-powered civic intelligence system to identify,classify,and prioritize recurring civic problems
 Civic Issue Triage
 A small tool that takes a citizen's report about a civic problem, a photo plus a short description, location, duration, and impact on people, and turns it into a structured assessment: what the problem is, how severe and urgent it is, whether it is an immediate hazard, and whether a human should review it.
@@ -167,5 +173,5 @@ generate_scenarios.py   Builds scenarios.csv
 
 scenarios.csv           500 labeled test scenarios
 
-requirements.txt        ollama, pydantic
+requirements.txt        ollama, pydantic 
 
