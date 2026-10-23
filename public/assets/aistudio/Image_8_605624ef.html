@@ -1,0 +1,177 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Civic Sentra - Risk &amp; Reports Hub</title>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Google Fonts: Plus Jakarta Sans & Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-tertiary-fixed": "#002019",
+            "surface-container": "#e5eeff",
+            "outline-variant": "#c2c7cb",
+            "primary-container": "#142d3a",
+            "error-container": "#ffdad6",
+            "tertiary-fixed-dim": "#65dabc",
+            "inverse-primary": "#b1cadb",
+            "tertiary": "#001a14",
+            "secondary-fixed": "#95f1ff",
+            "on-secondary-fixed": "#001f24",
+            "outline": "#73787c",
+            "primary-fixed-dim": "#b1cadb",
+            "on-error-container": "#93000a",
+            "inverse-surface": "#213145",
+            "on-tertiary-container": "#1ea488",
+            "surface-dim": "#cbdbf5",
+            "surface-container-high": "#dce9ff",
+            "secondary-container": "#95f1ff",
+            "tertiary-container": "#003127",
+            "on-background": "#0b1c30",
+            "tertiary-fixed": "#82f7d8",
+            "surface-container-highest": "#d3e4fe",
+            "on-tertiary-fixed-variant": "#005142",
+            "primary": "#001824",
+            "surface-container-lowest": "#ffffff",
+            "on-secondary": "#ffffff",
+            "secondary": "#006874",
+            "primary-fixed": "#cde6f7",
+            "on-primary": "#ffffff",
+            "on-primary-fixed": "#031e2b",
+            "on-error": "#ffffff",
+            "surface-container-low": "#eff4ff",
+            "error": "#ba1a1a",
+            "on-secondary-container": "#006f7b",
+            "surface": "#f8f9ff",
+            "secondary-fixed-dim": "#79d4e2",
+            "on-surface-variant": "#42474b",
+            "surface-variant": "#d3e4fe",
+            "inverse-on-surface": "#eaf1ff",
+            "surface-bright": "#f8f9ff",
+            "on-tertiary": "#ffffff",
+            "surface-tint": "#4a6270",
+            "on-secondary-fixed-variant": "#004f57",
+            "on-surface": "#0b1c30",
+            "on-primary-container": "#7c95a5",
+            "on-primary-fixed-variant": "#324a58",
+            "background": "#f8f9ff"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "space-lg": "1.5rem",
+            "margin-mobile": "1rem",
+            "gutter-mobile": "1rem",
+            "gutter": "1.5rem",
+            "space-md": "1rem",
+            "space-xl": "2.5rem",
+            "margin": "2rem",
+            "space-xs": "0.25rem",
+            "space-sm": "0.5rem"
+          },
+          "fontFamily": {
+            "headline-md": ["Plus Jakarta Sans"],
+            "body-lg": ["Inter"],
+            "label-md": ["Inter"],
+            "label-lg": ["Inter"],
+            "label-sm": ["Inter"],
+            "headline-xl": ["Plus Jakarta Sans"],
+            "body-md": ["Inter"],
+            "headline-xl-mobile": ["Plus Jakarta Sans"],
+            "headline-sm": ["Plus Jakarta Sans"],
+            "body-sm": ["Inter"],
+            "headline-lg-mobile": ["Plus Jakarta Sans"],
+            "headline-lg": ["Plus Jakarta Sans"]
+          },
+          "fontSize": {
+            "headline-md": ["1.5rem", { "lineHeight": "2rem", "fontWeight": "600" }],
+            "body-lg": ["1.125rem", { "lineHeight": "1.75rem", "fontWeight": "400" }],
+            "label-md": ["0.75rem", { "lineHeight": "1rem", "fontWeight": "600" }],
+            "label-lg": ["0.875rem", { "lineHeight": "1.25rem", "fontWeight": "600" }],
+            "label-sm": ["0.6875rem", { "lineHeight": "0.875rem", "fontWeight": "600" }],
+            "headline-xl": ["3rem", { "lineHeight": "3.5rem", "fontWeight": "700" }],
+            "body-md": ["1rem", { "lineHeight": "1.5rem", "fontWeight": "400" }],
+            "headline-xl-mobile": ["2.25rem", { "lineHeight": "2.75rem", "fontWeight": "700" }],
+            "headline-sm": ["1.25rem", { "lineHeight": "1.75rem", "fontWeight": "600" }],
+            "body-sm": ["0.875rem", { "lineHeight": "1.25rem", "fontWeight": "400" }],
+            "headline-lg-mobile": ["1.75rem", { "lineHeight": "2.25rem", "fontWeight": "700" }],
+            "headline-lg": ["2.25rem", { "lineHeight": "2.75rem", "fontWeight": "700" }]
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-surface text-on-surface antialiased min-h-screen pb-28 selection:bg-secondary/20 select-none">
+<!-- TOP APP BAR (Shared Component Anchor) -->
+<header class="sticky top-0 z-40 bg-surface shadow-sm transition-colors duration-150">
+<div class="flex justify-between items-center w-full px-margin-mobile py-space-sm max-w-7xl mx-auto">
+<!-- Leading Hub & Brand Anchor -->
+<div class="flex items-center space-x-2">
+<div class="w-8 h-8 rounded-lg bg-primary-container text-surface-container-lowest flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[20px]" data-icon="hub">hub</span>
+</div>
+<div>
+<span class="font-headline-sm text-headline-sm font-bold text-primary tracking-tight">CIVIC SENTRA</span>
+<div class="flex items-center space-x-1 -mt-0.5">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium tracking-wide">Live Telemetry</span>
+</div>
+</div>
+</div>
+<!-- Ward Location & Trailing Notification Action -->
+<div class="flex items-center space-x-2">
+<div class="flex items-center space-x-1 px-2.5 py-1 bg-surface-container-low rounded-full border border-outline-variant/30">
+<span class="material-symbols-outlined text-secondary text-[16px]" data-icon="location_on">location_on</span>
+<span class="font-label-sm text-label-sm text-primary font-semibold">Ward 178, Chennai</span>
+</div>
+<button aria-label="Notifications" class="relative w-8 h-8 flex items-center justify-center rounded-lg text-primary hover:bg-surface-container-high active:scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined text-[22px]" data-icon="notifications">notifications</span>
+<span class="absolute 1 top-1.5 right-1.5 w-2 h-2 bg-error rounded-full ring-2 ring-surface"></span>
+</button>
+</div>
+</div>
+<!-- Active Filter / Search Bar Subheader -->
+
+</header>
+<!-- MAIN SCROLLABLE CONTENT CANVAS -->
+<main class="px-margin-mobile max-w-7xl mx-auto pt-space-xs space-y-4"><div class="flex items-center justify-between px-1 pt-1 pb-1"><span class="font-label-md text-label-md text-on-surface-variant font-bold uppercase tracking-wider">Risk Categories</span><span class="font-label-sm text-label-sm text-on-surface-variant font-medium">10 Monitored</span></div><div class="space-y-2.5"><a href="#" class="flex items-center justify-between p-3.5 bg-surface-container-lowest rounded-xl border border-outline-variant/30 hover:border-secondary/40 active:scale-[0.99] transition-all shadow-sm"><div class="flex items-center space-x-3"><div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center border border-blue-100 flex-shrink-0"><span class="material-symbols-outlined text-[22px]" data-icon="flood">flood</span></div><div><h3 class="font-headline-sm text-[15px] font-bold text-primary leading-tight">Waterlogging &amp; Flooding</h3><div class="flex items-center space-x-2 mt-1"><span class="font-label-sm text-label-sm text-on-surface-variant">412 reports</span><span class="text-[10px] text-outline">•</span><span class="px-2 py-0.2 rounded-full text-[10px] font-bold uppercase tracking-wide bg-red-50 text-error border border-red-200">High Severity</span></div></div></div><span class="material-symbols-outlined text-outline text-[20px] flex-shrink-0" data-icon="chevron_right">chevron_right</span></a><a href="#" class="flex items-center justify-between p-3.5 bg-surface-container-lowest rounded-xl border border-outline-variant/30 hover:border-secondary/40 active:scale-[0.99] transition-all shadow-sm"><div class="flex items-center space-x-3"><div class="w-10 h-10 rounded-xl bg-cyan-50 text-secondary flex items-center justify-center border border-cyan-100 flex-shrink-0"><span class="material-symbols-outlined text-[22px]" data-icon="water_damage">water_damage</span></div><div><h3 class="font-headline-sm text-[15px] font-bold text-primary leading-tight">Blocked Drains &amp; Sewage Overflow</h3><div class="flex items-center space-x-2 mt-1"><span class="font-label-sm text-label-sm text-on-surface-variant">235 reports</span><span class="text-[10px] text-outline">•</span><span class="px-2 py-0.2 rounded-full text-[10px] font-bold uppercase tracking-wide bg-red-50 text-error border border-red-200">High Severity</span></div></div></div><span class="material-symbols-outlined text-outline text-[20px] flex-shrink-0" data-icon="chevron_right">chevron_right</span></a><a href="#" class="flex items-center justify-between p-3.5 bg-surface-container-lowest rounded-xl border border-outline-variant/30 hover:border-secondary/40 active:scale-[0.99] transition-all shadow-sm"><div class="flex items-center space-x-3"><div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center border border-amber-100 flex-shrink-0"><span class="material-symbols-outlined text-[22px]" data-icon="delete_outline">delete_outline</span></div><div><h3 class="font-headline-sm text-[15px] font-bold text-primary leading-tight">Garbage Accumulation &amp; Waste Management</h3><div class="flex items-center space-x-2 mt-1"><span class="font-label-sm text-label-sm text-on-surface-variant">184 reports</span><span class="text-[10px] text-outline">•</span><span class="px-2 py-0.2 rounded-full text-[10px] font-bold uppercase tracking-wide bg-amber-50 text-amber-700 border border-amber-200">Medium Severity</span></div></div></div><span class="material-symbols-outlined text-outline text-[20px] flex-shrink-0" data-icon="chevron_right">chevron_right</span></a><a href="#" class="flex items-center justify-between p-3.5 bg-surface-container-lowest rounded-xl border border-outline-variant/30 hover:border-secondary/40 active:scale-[0.99] transition-all shadow-sm"><div class="flex items-center space-x-3"><div class="w-10 h-10 rounded-xl bg-orange-50 text-orange-700 flex items-center justify-center border border-orange-100 flex-shrink-0"><span class="material-symbols-outlined text-[22px]" data-icon="crisis_alert">crisis_alert</span></div><div><h3 class="font-headline-sm text-[15px] font-bold text-primary leading-tight">Potholes &amp; Damaged Roads</h3><div class="flex items-center space-x-2 mt-1"><span class="font-label-sm text-label-sm text-on-surface-variant">196 reports</span><span class="text-[10px] text-outline">•</span><span class="px-2 py-0.2 rounded-full text-[10px] font-bold uppercase tracking-wide bg-red-50 text-error border border-red-200">High Severity</span></div></div></div><span class="material-symbols-outlined text-outline text-[20px] flex-shrink-0" data-icon="chevron_right">chevron_right</span></a><a href="#" class="flex items-center justify-between p-3.5 bg-surface-container-lowest rounded-xl border border-outline-variant/30 hover:border-secondary/40 active:scale-[0.99] transition-all shadow-sm"><div class="flex items-center space-x-3"><div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center border border-slate-200 flex-shrink-0"><span class="material-symbols-outlined text-[22px]" data-icon="lightbulb">lightbulb</span></div><div><h3 class="font-headline-sm text-[15px] font-bold text-primary leading-tight">Streetlight Failures</h3><div class="flex items-center space-x-2 mt-1"><span class="font-label-sm text-label-sm text-on-surface-variant">78 reports</span><span class="text-[10px] text-outline">•</span><span class="px-2 py-0.2 rounded-full text-[10px] font-bold uppercase tracking-wide bg-amber-50 text-amber-700 border border-amber-200">Medium Severity</span></div></div></div><span class="material-symbols-outlined text-outline text-[20px] flex-shrink-0" data-icon="chevron_right">chevron_right</span></a><a href="#" class="flex items-center justify-between p-3.5 bg-surface-container-lowest rounded-xl border border-outline-variant/30 hover:border-secondary/40 active:scale-[0.99] transition-all shadow-sm"><div class="flex items-center space-x-3"><div class="w-10 h-10 rounded-xl bg-teal-50 text-secondary flex items-center justify-center border border-teal-100 flex-shrink-0"><span class="material-symbols-outlined text-[22px]" data-icon="water_drop">water_drop</span></div><div><h3 class="font-headline-sm text-[15px] font-bold text-primary leading-tight">Drinking Water Problems &amp; Leakage</h3><div class="flex items-center space-x-2 mt-1"><span class="font-label-sm text-label-sm text-on-surface-variant">112 reports</span><span class="text-[10px] text-outline">•</span><span class="px-2 py-0.2 rounded-full text-[10px] font-bold uppercase tracking-wide bg-red-50 text-error border border-red-200">High Severity</span></div></div></div><span class="material-symbols-outlined text-outline text-[20px] flex-shrink-0" data-icon="chevron_right">chevron_right</span></a><a href="#" class="flex items-center justify-between p-3.5 bg-surface-container-lowest rounded-xl border border-outline-variant/30 hover:border-secondary/40 active:scale-[0.99] transition-all shadow-sm"><div class="flex items-center space-x-3"><div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-800 flex items-center justify-center border border-emerald-100 flex-shrink-0"><span class="material-symbols-outlined text-[22px]" data-icon="nature">nature</span></div><div><h3 class="font-headline-sm text-[15px] font-bold text-primary leading-tight">Fallen Trees &amp; Dangerous Branches</h3><div class="flex items-center space-x-2 mt-1"><span class="font-label-sm text-label-sm text-on-surface-variant">43 reports</span><span class="text-[10px] text-outline">•</span><span class="px-2 py-0.2 rounded-full text-[10px] font-bold uppercase tracking-wide bg-amber-50 text-amber-700 border border-amber-200">Medium Severity</span></div></div></div><span class="material-symbols-outlined text-outline text-[20px] flex-shrink-0" data-icon="chevron_right">chevron_right</span></a><a href="#" class="flex items-center justify-between p-3.5 bg-surface-container-lowest rounded-xl border border-outline-variant/30 hover:border-secondary/40 active:scale-[0.99] transition-all shadow-sm"><div class="flex items-center space-x-3"><div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center border border-purple-100 flex-shrink-0"><span class="material-symbols-outlined text-[22px]" data-icon="traffic">traffic</span></div><div><h3 class="font-headline-sm text-[15px] font-bold text-primary leading-tight">Traffic Signals &amp; Pedestrian Safety</h3><div class="flex items-center space-x-2 mt-1"><span class="font-label-sm text-label-sm text-on-surface-variant">61 reports</span><span class="text-[10px] text-outline">•</span><span class="px-2 py-0.2 rounded-full text-[10px] font-bold uppercase tracking-wide bg-emerald-50 text-emerald-700 border border-emerald-200">Low Severity</span></div></div></div><span class="material-symbols-outlined text-outline text-[20px] flex-shrink-0" data-icon="chevron_right">chevron_right</span></a><a href="#" class="flex items-center justify-between p-3.5 bg-surface-container-lowest rounded-xl border-2 border-red-200 hover:border-red-400 active:scale-[0.99] transition-all shadow-sm"><div class="flex items-center space-x-3"><div class="w-10 h-10 rounded-xl bg-red-100 text-error flex items-center justify-center border border-red-200 flex-shrink-0"><span class="material-symbols-outlined text-[22px]" data-icon="warning">warning</span></div><div><div class="flex items-center space-x-1.5"><h3 class="font-headline-sm text-[15px] font-bold text-primary leading-tight">Open Manholes &amp; Damaged Drain Covers</h3><span class="w-1.5 h-1.5 rounded-full bg-error animate-ping"></span></div><div class="flex items-center space-x-2 mt-1"><span class="font-label-sm text-label-sm text-error font-medium">89 reports</span><span class="text-[10px] text-outline">•</span><span class="px-2 py-0.2 rounded-full text-[10px] font-extrabold uppercase tracking-wide bg-error text-surface-container-lowest">High / Critical</span></div></div></div><span class="material-symbols-outlined text-outline text-[20px] flex-shrink-0" data-icon="chevron_right">chevron_right</span></a><a href="#" class="flex items-center justify-between p-3.5 bg-surface-container-lowest rounded-xl border border-outline-variant/30 hover:border-secondary/40 active:scale-[0.99] transition-all shadow-sm"><div class="flex items-center space-x-3"><div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100 flex-shrink-0"><span class="material-symbols-outlined text-[22px]" data-icon="wc">wc</span></div><div><h3 class="font-headline-sm text-[15px] font-bold text-primary leading-tight">Public Toilets &amp; Sanitation</h3><div class="flex items-center space-x-2 mt-1"><span class="font-label-sm text-label-sm text-on-surface-variant">38 reports</span><span class="text-[10px] text-outline">•</span><span class="px-2 py-0.2 rounded-full text-[10px] font-bold uppercase tracking-wide bg-slate-100 text-slate-700 border border-slate-200">Low Severity</span></div></div></div><span class="material-symbols-outlined text-outline text-[20px] flex-shrink-0" data-icon="chevron_right">chevron_right</span></a></div></main>
+<!-- BOTTOM NAVIGATION BAR (Strict 4-Tab Alignment: Overview, Map, Report, Risk [ACTIVE]) -->
+<nav aria-label="Bottom Navigation" class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-space-xs py-space-xs pb-safe bg-surface-container-lowest border-t border-outline-variant/20 shadow-[0_-2px_12px_rgba(20,45,58,0.06)]">
+<!-- Tab 1: Overview -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant font-normal p-space-xs hover:text-secondary active:scale-95 transition-all" href="#">
+<span class="material-symbols-outlined text-[24px]" data-icon="dashboard">dashboard</span>
+<span class="font-label-sm text-label-sm mt-0.5">Overview</span>
+</a>
+<!-- Tab 2: Map -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant font-normal p-space-xs hover:text-secondary active:scale-95 transition-all" href="#">
+<span class="material-symbols-outlined text-[24px]" data-icon="map">map</span>
+<span class="font-label-sm text-label-sm mt-0.5">Map</span>
+</a>
+<!-- Tab 3: Report (Citizen Quick Action) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant font-normal p-space-xs hover:text-secondary active:scale-95 transition-all" href="#">
+<span class="material-symbols-outlined text-[24px]" data-icon="add_circle">add_circle</span>
+<span class="font-label-sm text-label-sm mt-0.5">Report</span>
+</a>
+<!-- Tab 4: Risk (ACTIVE per user specification & hierarchy) -->
+<a aria-current="page" class="flex flex-col items-center justify-center text-secondary font-semibold p-space-xs active:scale-95 transition-all" href="#">
+<span class="material-symbols-outlined text-[24px]" data-icon="analytics" style="font-variation-settings: 'FILL' 1;">analytics</span>
+<span class="font-label-sm text-label-sm mt-0.5">Risk</span>
+</a>
+</nav>
+
+
+</body></html>

@@ -1,0 +1,504 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Civic Sentra - Community Dashboard</title>
+<!-- Google Fonts: Plus Jakarta Sans & Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS with Forms and Container Queries -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "primary-container": "#142d3a",
+            "on-error-container": "#93000a",
+            "tertiary-fixed-dim": "#65dabc",
+            "tertiary-fixed": "#82f7d8",
+            "surface-container-high": "#dce9ff",
+            "error": "#ba1a1a",
+            "outline-variant": "#c2c7cb",
+            "on-secondary-fixed-variant": "#004f57",
+            "on-surface": "#0b1c30",
+            "on-tertiary-container": "#1ea488",
+            "on-primary-container": "#7c95a5",
+            "secondary-fixed": "#95f1ff",
+            "on-primary": "#ffffff",
+            "surface-container-highest": "#d3e4fe",
+            "surface-dim": "#cbdbf5",
+            "inverse-surface": "#213145",
+            "inverse-primary": "#b1cadb",
+            "on-background": "#0b1c30",
+            "secondary": "#006874",
+            "on-surface-variant": "#42474b",
+            "secondary-fixed-dim": "#79d4e2",
+            "secondary-container": "#95f1ff",
+            "on-secondary": "#ffffff",
+            "surface-container": "#e5eeff",
+            "surface-container-lowest": "#ffffff",
+            "on-primary-fixed": "#031e2b",
+            "on-tertiary-fixed": "#002019",
+            "surface-tint": "#4a6270",
+            "on-error": "#ffffff",
+            "on-secondary-fixed": "#001f24",
+            "on-primary-fixed-variant": "#324a58",
+            "surface": "#f8f9ff",
+            "on-secondary-container": "#006f7b",
+            "primary": "#001824",
+            "primary-fixed-dim": "#b1cadb",
+            "on-tertiary": "#ffffff",
+            "tertiary": "#001a14",
+            "inverse-on-surface": "#eaf1ff",
+            "tertiary-container": "#003127",
+            "outline": "#73787c",
+            "surface-container-low": "#eff4ff",
+            "surface-variant": "#d3e4fe",
+            "error-container": "#ffdad6",
+            "primary-fixed": "#cde6f7",
+            "surface-bright": "#f8f9ff",
+            "on-tertiary-fixed-variant": "#005142",
+            "background": "#f8f9ff"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "space-xl": "2.5rem",
+            "space-xs": "0.25rem",
+            "space-md": "1rem",
+            "gutter-mobile": "1rem",
+            "space-sm": "0.5rem",
+            "space-lg": "1.5rem",
+            "gutter": "1.5rem",
+            "margin-mobile": "1rem",
+            "margin": "2rem"
+          },
+          "fontFamily": {
+            "label-md": ["Inter"],
+            "headline-lg": ["Plus Jakarta Sans"],
+            "headline-xl-mobile": ["Plus Jakarta Sans"],
+            "headline-sm": ["Plus Jakarta Sans"],
+            "headline-lg-mobile": ["Plus Jakarta Sans"],
+            "headline-xl": ["Plus Jakarta Sans"],
+            "label-sm": ["Inter"],
+            "headline-md": ["Plus Jakarta Sans"],
+            "body-lg": ["Inter"],
+            "label-lg": ["Inter"],
+            "body-md": ["Inter"],
+            "body-sm": ["Inter"]
+          },
+          "fontSize": {
+            "label-md": ["0.75rem", { "lineHeight": "1rem", "fontWeight": "600" }],
+            "headline-lg": ["2.25rem", { "lineHeight": "2.75rem", "fontWeight": "700" }],
+            "headline-xl-mobile": ["2.25rem", { "lineHeight": "2.75rem", "fontWeight": "700" }],
+            "headline-sm": ["1.25rem", { "lineHeight": "1.75rem", "fontWeight": "600" }],
+            "headline-lg-mobile": ["1.75rem", { "lineHeight": "2.25rem", "fontWeight": "700" }],
+            "headline-xl": ["3rem", { "lineHeight": "3.5rem", "fontWeight": "700" }],
+            "label-sm": ["0.6875rem", { "lineHeight": "0.875rem", "fontWeight": "600" }],
+            "headline-md": ["1.5rem", { "lineHeight": "2rem", "fontWeight": "600" }],
+            "body-lg": ["1.125rem", { "lineHeight": "1.75rem", "fontWeight": "400" }],
+            "label-lg": ["0.875rem", { "lineHeight": "1.25rem", "fontWeight": "600" }],
+            "body-md": ["1rem", { "lineHeight": "1.5rem", "fontWeight": "400" }],
+            "body-sm": ["0.875rem", { "lineHeight": "1.25rem", "fontWeight": "400" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    /* Pulse glow for real-time ping */
+    @keyframes ping-subtle {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.15); opacity: 0.3; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+    .pulse-hotspot {
+      animation: ping-subtle 3s cubic-bezier(0, 0, 0.2, 1) infinite;
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface antialiased font-body-md selection:bg-secondary-container selection:text-on-secondary-container pb-28">
+<!-- ================= TOP APP BAR (Shared Component Anchor) ================= -->
+<header class="bg-surface dark:bg-primary-container text-primary dark:text-inverse-primary docked full-width top-0 shadow-sm dark:shadow-none sticky z-40 transition-colors duration-150">
+<div class="flex justify-between items-center w-full px-margin-mobile py-space-sm max-w-7xl mx-auto">
+<!-- Leading Icon & Brand Anchor -->
+<div class="flex items-center gap-space-xs">
+<button aria-label="Menu" class="flex items-center justify-center p-space-xs rounded-lg text-primary dark:text-inverse-primary hover:bg-surface-container-high dark:hover:bg-primary transition-colors duration-150 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-primary dark:text-inverse-primary">hub</span>
+</button>
+<div class="flex flex-col">
+<span class="text-headline-sm font-headline-sm font-bold text-primary dark:text-surface-bright tracking-tight leading-none">
+            CIVIC SENTRA
+          </span>
+<span class="text-label-sm font-label-sm text-secondary font-medium tracking-wide mt-0.5">
+            See It. Report It. Resolve It.
+          </span>
+</div>
+</div>
+<!-- Location Pill & Notifications Trailing -->
+<div class="flex items-center gap-space-xs">
+<!-- Location Pill -->
+<div class="hidden xs:flex items-center gap-1 bg-surface-container px-2 py-1 rounded-full border border-outline-variant/30 text-on-surface-variant text-label-sm font-label-sm">
+<span class="material-symbols-outlined text-[16px] text-secondary">location_on</span>
+<span class="truncate max-w-[110px]">Ward 178, Chennai</span>
+</div>
+<!-- Notification Bell Icon (Exact from JSON) -->
+<button aria-label="Notifications" class="relative flex items-center justify-center p-space-xs rounded-lg text-primary dark:text-inverse-primary hover:bg-surface-container-high dark:hover:bg-primary transition-colors duration-150 active:scale-95">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-error ring-2 ring-surface"></span>
+</button>
+</div>
+</div>
+</header>
+<!-- ================= MAIN CONTENT CONTAINER ================= -->
+<main class="w-full max-w-xl mx-auto px-margin-mobile pt-space-md space-y-space-md">
+<!-- Location Pill for Mobile (Visible when compact) -->
+<div class="flex xs:hidden items-center justify-between bg-surface-container-low px-space-md py-space-xs rounded-xl border border-outline-variant/30">
+<div class="flex items-center gap-1.5 text-secondary">
+<span class="material-symbols-outlined text-[18px]">location_on</span>
+<span class="text-label-md font-label-md font-semibold text-on-surface">Ward 178, Chennai</span>
+</div>
+<span class="text-label-sm font-label-sm text-secondary uppercase tracking-wider bg-surface-container-lowest px-2 py-0.5 rounded border border-outline-variant/20">Zone 13 South</span>
+</div>
+<!-- ================= 2. SIMPLE PHOTO UPLOAD BAR ================= -->
+<section aria-label="Upload photo of your area">
+<div class="relative group cursor-pointer bg-surface-container-lowest hover:bg-surface-container-low transition-all duration-200 border-2 border-dashed border-secondary/40 hover:border-secondary rounded-xl p-space-md text-center shadow-sm">
+<input accept="image/*" aria-label="Choose Photo" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" type="file">
+<div class="flex items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm text-left">
+<div class="w-11 h-11 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary group-hover:scale-105 transition-transform duration-150">
+<span class="material-symbols-outlined text-[26px]">photo_camera</span>
+</div>
+<div>
+<p class="text-headline-sm font-headline-sm text-primary text-base font-bold leading-tight">
+                Upload photo of your area
+              </p>
+<p class="text-body-sm font-body-sm text-on-surface-variant text-xs mt-0.5">
+                Instant geo-tag &amp; AI issue detection
+              </p>
+</div>
+</div>
+<div class="inline-flex items-center gap-1 bg-secondary text-on-secondary px-space-md py-space-xs rounded-lg text-label-md font-label-md shadow-sm group-hover:bg-primary-container transition-colors">
+<span class="">Choose</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</div>
+</div>
+</div>
+</section>
+<!-- ================= 3. TWO KEY STAT BOXES ================= -->
+<section aria-label="Community Key Metrics" class="grid grid-cols-2 gap-space-sm">
+<!-- Box 1: Total Reports So Far -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl border border-outline-variant/30 flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between text-on-surface-variant mb-1">
+<span class="text-label-sm font-label-sm uppercase tracking-wider">Total Reports</span>
+<span class="material-symbols-outlined text-[18px] text-outline">query_stats</span>
+</div>
+<div class="text-headline-md font-headline-md font-bold text-primary tracking-tight">
+            1,428
+          </div>
+</div>
+<div class="mt-2 text-label-sm font-label-sm text-on-surface-variant flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span class="">Chennai Ward 178</span>
+</div>
+</div>
+<!-- Box 2: Reported The Same Issue (Highlight Feature) -->
+<div class="bg-primary-container text-on-primary p-space-md rounded-xl border border-secondary/30 relative overflow-hidden shadow-sm flex flex-col justify-between">
+<!-- Subtle Glow highlight -->
+<div class="absolute -right-6 -bottom-6 w-20 h-20 bg-secondary/30 rounded-full blur-xl pointer-events-none"></div>
+<div>
+<div class="flex items-center justify-between mb-1">
+<span class="inline-flex items-center gap-1 bg-secondary-fixed text-on-secondary-fixed-variant px-1.5 py-0.5 rounded text-[10px] font-label-sm font-bold uppercase tracking-wider">
+<span class="material-symbols-outlined text-[12px]">group</span>
+              Consensus
+            </span>
+<span class="material-symbols-outlined text-[18px] text-secondary-fixed-dim">verified</span>
+</div>
+<div class="text-headline-md font-headline-md font-bold text-on-primary tracking-tight">
+            142 people
+          </div>
+</div>
+<div class="mt-2 text-label-sm font-label-sm text-on-primary-container font-medium">
+          Reported the same issue
+        </div>
+</div>
+</section>
+<!-- ================= 4. SEVERITY LEVEL INDICATOR & 5. CURRENT STATUS ================= -->
+<section aria-label="Incident Severity and Status" class="bg-surface-container-lowest p-space-md rounded-xl border border-outline-variant/30 space-y-space-md">
+<!-- Incident Overview Title -->
+<div class="flex items-center justify-between pb-space-xs border-b border-surface-container-high">
+<div>
+<span class="text-label-sm font-label-sm text-secondary font-bold uppercase tracking-wider">Incident #CS-8921</span>
+<h2 class="text-headline-sm font-headline-sm text-primary text-base font-bold">Waterlogging &amp; Drain Block</h2>
+</div>
+<span class="text-label-sm font-label-sm text-on-surface-variant flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-error animate-ping"></span>
+          Live Focus
+        </span>
+</div>
+<!-- 4. SEVERITY LEVEL INDICATOR (Strictly 3 levels: High, Medium, Low - NO NUMBERS) -->
+<div>
+<div class="flex items-center justify-between mb-2">
+<span class="text-label-md font-label-md text-on-surface-variant font-medium">Severity Level</span>
+<span class="text-label-sm font-label-sm text-error font-bold uppercase tracking-wider">High Priority</span>
+</div>
+<div class="grid grid-cols-3 gap-2">
+<!-- Level 1: Low -->
+<div class="py-2 px-1 text-center rounded-lg border border-outline-variant/30 bg-surface-container-low text-on-surface-variant opacity-60">
+<span class="text-label-md font-label-md block">Low</span>
+</div>
+<!-- Level 2: Medium -->
+<div class="py-2 px-1 text-center rounded-lg border border-outline-variant/30 bg-surface-container-low text-on-surface-variant opacity-60">
+<span class="text-label-md font-label-md block">Medium</span>
+</div>
+<!-- Level 3: High (ACTIVE) -->
+<div class="py-2 px-1 text-center rounded-lg border-2 border-error bg-error-container text-on-error-container shadow-sm font-bold ring-1 ring-error/20">
+<div class="flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-[15px] text-error">warning</span>
+<span class="text-label-md font-label-md">High</span>
+</div>
+</div>
+</div>
+</div>
+<!-- 5. CURRENT SITUATION TRACKER (Strictly 3 states: Reported, On-Progress, Problem Solved) -->
+<div>
+<div class="flex items-center justify-between mb-2.5">
+<span class="text-label-md font-label-md text-on-surface-variant font-medium">Resolution Phase</span>
+<span class="text-label-sm font-label-sm text-secondary font-semibold">Stage 2 of 3</span>
+</div>
+<!-- 3-Step Clean Tracker -->
+<div class="relative flex items-center justify-between">
+<!-- Background Connecting Bar -->
+<div class="absolute left-6 right-6 top-4 h-0.5 bg-outline-variant/30 -z-0"></div>
+<!-- Completed segment progress fill -->
+<div class="absolute left-6 right-1/2 top-4 h-0.5 bg-secondary -z-0"></div>
+<!-- Step 1: Reported [Completed] -->
+<div class="flex flex-col items-center z-10 group">
+<div class="w-8 h-8 rounded-full bg-secondary text-on-secondary flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[18px]">check</span>
+</div>
+<span class="text-label-sm font-label-sm font-bold text-on-surface mt-1.5">Reported</span>
+<span class="text-[10px] text-on-surface-variant">08:15 AM</span>
+</div>
+<!-- Step 2: On-Progress [Active/Pulsing] -->
+<div class="flex flex-col items-center z-10">
+<div class="relative flex items-center justify-center">
+<span class="absolute w-10 h-10 rounded-full bg-secondary/20 animate-ping"></span>
+<div class="w-8 h-8 rounded-full bg-primary-container text-secondary-fixed flex items-center justify-center ring-2 ring-secondary shadow-md">
+<span class="material-symbols-outlined text-[18px]">engineering</span>
+</div>
+</div>
+<span class="text-label-sm font-label-sm font-bold text-secondary mt-1.5">On-Progress</span>
+<span class="text-[10px] text-secondary font-medium">Crew Dispatched</span>
+</div>
+<!-- Step 3: Problem Solved [Upcoming] -->
+<div class="flex flex-col items-center z-10">
+<div class="w-8 h-8 rounded-full bg-surface-container-low border border-outline-variant/40 text-outline flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">task_alt</span>
+</div>
+<span class="text-label-sm font-label-sm text-outline mt-1.5 font-medium">Problem Solved</span>
+<span class="text-[10px] text-outline">Pending</span>
+</div>
+</div>
+</div>
+</section>
+<!-- ================= 6. MAP SHOWING PHOTO LOCATION & HOTSPOT ================= -->
+<section aria-label="Interactive Map Area" class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 overflow-hidden shadow-sm">
+<!-- Map Header & Filter Chips -->
+<div class="p-space-md border-b border-outline-variant/20 flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-secondary">explore</span>
+<span class="text-label-lg font-label-lg text-primary">Ward Geospatial Cluster</span>
+</div>
+<div class="flex items-center gap-1">
+<button aria-label="Zoom in" class="px-2 py-1 rounded bg-surface-container text-on-surface text-label-sm font-label-sm active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[14px]">add</span>
+</button>
+<button aria-label="Zoom out" class="px-2 py-1 rounded bg-surface-container text-on-surface text-label-sm font-label-sm active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[14px]">remove</span>
+</button>
+</div>
+</div>
+<!-- Map Display Area -->
+<div class="relative w-full h-56 bg-surface-container overflow-hidden">
+<!-- Stylized Map Base (Road vectors & water body simulation via CSS) -->
+<div class="absolute inset-0 bg-[#e6edf4] opacity-90">
+<!-- Arterial Road 100ft Bypass -->
+<div class="absolute top-1/2 left-0 right-0 h-6 bg-surface-container-lowest -translate-y-1/2 border-y border-outline-variant/40"></div>
+<div class="absolute top-1/2 left-0 right-0 h-0.5 border-t border-dashed border-outline-variant/60 -translate-y-1/2"></div>
+<!-- Cross Street Velachery Main Rd -->
+<div class="absolute top-0 bottom-0 left-1/3 w-7 bg-surface-container-lowest -translate-x-1/2 border-x border-outline-variant/40 rotate-12"></div>
+<!-- Secondary Street -->
+<div class="absolute top-0 bottom-0 right-1/4 w-4 bg-surface-container-lowest -translate-x-1/2 border-x border-outline-variant/30 -rotate-6"></div>
+<!-- Water Channel / Canal indicator -->
+<div class="absolute bottom-2 left-0 right-0 h-4 bg-secondary-fixed/40 border-t border-secondary-fixed-dim/60"></div>
+</div>
+<!-- Hotspot Area: Shaded Zone (Indicating recurring problem area) -->
+<div class="absolute top-1/2 left-1/3 -translate-x-1/2 -translate-y-1/2 w-40 h-40 rounded-full bg-error/15 border-2 border-dashed border-error/50 flex items-center justify-center pulse-hotspot pointer-events-none">
+<span class="text-[10px] font-label-sm uppercase font-bold text-error tracking-wider bg-surface-container-lowest/90 px-2 py-0.5 rounded shadow-sm border border-error/30 -mt-16">
+            Hotspot Area
+          </span>
+</div>
+<!-- Specific Photo Location Pin -->
+<div class="absolute top-1/2 left-1/3 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center pointer-events-none z-20">
+<div class="bg-primary-container text-on-primary px-2.5 py-1 rounded-full text-label-sm font-label-sm font-semibold shadow-md flex items-center gap-1.5 whitespace-nowrap mb-1 ring-2 ring-surface">
+<span class="w-2 h-2 rounded-full bg-secondary-fixed animate-pulse"></span>
+<span class="">Photo location: 100ft Bypass Rd</span>
+</div>
+<div class="w-6 h-6 rounded-full bg-secondary text-on-secondary flex items-center justify-center shadow-lg ring-2 ring-surface-container-lowest">
+<span class="material-symbols-outlined text-[16px]">photo_camera</span>
+</div>
+<div class="w-1.5 h-2 bg-secondary -mt-0.5 rounded-b-sm"></div>
+</div>
+<!-- Secondary Cluster Pin (nearby consensus) -->
+<div class="absolute top-12 right-20 flex items-center gap-1 bg-surface-container-lowest/95 border border-outline-variant/40 px-2 py-0.5 rounded-full shadow-sm text-xs font-label-sm">
+<span class="material-symbols-outlined text-[14px] text-error">warning</span>
+<span class="text-primary font-bold">+14 reports</span>
+</div>
+<!-- Clean Map Legend at Bottom Left -->
+<div class="absolute bottom-2 left-2 bg-surface-container-lowest/95 backdrop-blur-sm px-2.5 py-1.5 rounded-lg border border-outline-variant/30 shadow-sm flex items-center gap-3 text-label-sm font-label-sm z-20">
+<div class="flex items-center gap-1">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary ring-1 ring-surface-container-lowest"></span>
+<span class="text-on-surface">Your Photo</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="w-2.5 h-2.5 rounded-full bg-error/30 border border-error"></span>
+<span class="text-on-surface">Hotspot Zone</span>
+</div>
+</div>
+</div>
+<!-- Map Sub-strip -->
+<div class="px-space-md py-space-xs bg-surface-container-low flex items-center justify-between text-label-sm font-label-sm text-on-surface-variant">
+<span class="">Ward 178 • Velachery Drainage Corridor</span>
+<a class="text-secondary font-semibold hover:underline inline-flex items-center gap-0.5" href="#map-full">
+          Expand Map
+          <span class="material-symbols-outlined text-[14px]">open_in_new</span>
+</a>
+</div>
+</section>
+<!-- ================= 7. ACTIVE COMMUNITY REPORT CARD ================= -->
+<section aria-label="Active Incident Details" class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 overflow-hidden shadow-sm">
+<!-- Incident Image Thumbnail & Badges -->
+<div class="relative w-full h-44 bg-surface-container overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A realistic eye-level municipal photo of an urban street with severe monsoon waterlogging submerging the curb and blocking storm drains in Chennai. High-contrast overcast daylight illuminates murky stagnant water reflecting city storefronts and traffic signs. The atmosphere is grounded, authentic, and alert with institutional slate navy and teal color harmony." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1OQb030NSQEYwuKof9HBz-XQtcF-35_fBen57u2xSOpX0LndTrrM7Yqos5qsUSQioQu7YvB2vR430617xsF9bthpOBRPovT10OeNB-5g_lUf5eI5pXWWCmVRdkMeTDypF3GYWdJy-Wf6BifEmIAK8tnaEylBN-3aB8vUQMqlKJKeI5jCe18QCAujbLd5wtds0RBoZR8z_sCEPvN6AMpGJiLFf5_iHD5QWrYrHHLPo0MrRRUUDT8ZD">
+<!-- Overlay Status Chips -->
+<div class="absolute top-2.5 left-2.5 flex items-center gap-1.5">
+<!-- Severity Badge: High -->
+<span class="px-2 py-0.5 rounded text-label-sm font-label-sm uppercase font-bold tracking-wider bg-error text-on-error shadow-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">warning</span>
+            High
+          </span>
+<!-- Status Badge: On-Progress -->
+<span class="px-2 py-0.5 rounded text-label-sm font-label-sm uppercase font-bold tracking-wider bg-primary-container text-secondary-fixed shadow-sm flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary-fixed animate-pulse"></span>
+            On-Progress
+          </span>
+</div>
+<!-- Timestamp Tag -->
+<div class="absolute bottom-2.5 right-2.5 bg-primary-container/85 backdrop-blur-sm text-on-primary px-2 py-0.5 rounded text-[11px] font-label-sm">
+          Updated 14 mins ago
+        </div>
+</div>
+<!-- Incident Meta Details -->
+<div class="p-space-md space-y-space-sm">
+<div>
+<div class="flex items-center justify-between text-label-sm font-label-sm text-on-surface-variant mb-1">
+<span class="uppercase tracking-wider font-semibold text-secondary">Waterlogging &amp; Drain Block</span>
+<span class="">Ref: CS-8921</span>
+</div>
+<h3 class="text-headline-sm font-headline-sm text-primary text-lg font-bold leading-snug">
+            Velachery Main Rd, near 100ft Bypass Junction
+          </h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-1">
+            Heavy monsoon runoff accumulating at low-lying intersection. Municipal silt suction truck deployed; storm drain clearance underway.
+          </p>
+</div>
+<!-- Social Proof Consensus Ticker -->
+<div class="flex items-center justify-between p-space-xs px-space-sm bg-surface-container-low rounded-lg border border-outline-variant/20">
+<div class="flex items-center gap-2">
+<div class="flex -space-x-1.5">
+<div class="w-6 h-6 rounded-full bg-secondary text-on-secondary text-[10px] font-bold flex items-center justify-center ring-2 ring-surface-container-lowest">K</div>
+<div class="w-6 h-6 rounded-full bg-primary-container text-on-primary text-[10px] font-bold flex items-center justify-center ring-2 ring-surface-container-lowest">R</div>
+<div class="w-6 h-6 rounded-full bg-surface-tint text-on-primary text-[10px] font-bold flex items-center justify-center ring-2 ring-surface-container-lowest">S</div>
+</div>
+<span class="text-label-sm font-label-sm text-on-surface font-medium">
+<strong>142 neighbors</strong> confirmed this
+            </span>
+</div>
+<span class="text-label-sm font-label-sm text-secondary font-semibold">Active Zone</span>
+</div>
+<!-- Action Row: "I See This Too (+1)" -->
+<div class="pt-1 flex items-center gap-space-xs">
+<button class="flex-1 py-2.5 px-space-md bg-secondary text-on-secondary rounded-lg font-label-lg text-label-lg hover:bg-primary-container transition-colors duration-150 active:scale-95 flex items-center justify-center gap-2 shadow-sm font-bold">
+<span class="material-symbols-outlined text-[20px]">thumb_up</span>
+<span class="">I See This Too (+1)</span>
+</button>
+<button aria-label="Share Report" class="p-2.5 rounded-lg border border-outline-variant/40 text-on-surface-variant hover:bg-surface-container active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[20px]">share</span>
+</button>
+</div>
+</div>
+</section>
+</main>
+<!-- ================= BOTTOM NAVIGATION BAR (Shared Component Anchor) ================= -->
+<!-- Contextual Lock: Active Tab is "Overview" as this is the primary live ward dashboard -->
+<nav aria-label="Bottom Navigation" class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-space-xs py-space-xs pb-safe bg-surface-container-lowest dark:bg-primary-container border-t border-outline-variant/20 dark:border-outline/20 shadow-[0_-2px_12px_rgba(20,45,58,0.06)] dark:shadow-none">
+<!-- 1. Overview (ACTIVE) -->
+<a class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed font-semibold p-space-xs active:scale-95 transition-transform duration-150" href="#overview">
+<span class="material-symbols-outlined text-[22px]">dashboard</span>
+<span class="text-label-sm font-label-sm mt-0.5">Overview</span>
+</a>
+<!-- 2. Map (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-primary-container font-normal p-space-xs hover:text-secondary dark:hover:text-secondary-fixed transition-colors duration-150 active:scale-95" href="#map">
+<span class="material-symbols-outlined text-[22px]">map</span>
+<span class="text-label-sm font-label-sm mt-0.5">Map</span>
+</a>
+<!-- 3. Report (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-primary-container font-normal p-space-xs hover:text-secondary dark:hover:text-secondary-fixed transition-colors duration-150 active:scale-95" href="#report">
+<span class="material-symbols-outlined text-[24px] text-secondary">add_circle</span>
+<span class="text-label-sm font-label-sm mt-0.5">Report</span>
+</a>
+<!-- 4. Risk (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-primary-container font-normal p-space-xs hover:text-secondary dark:hover:text-secondary-fixed transition-colors duration-150 active:scale-95" href="#risk">
+<span class="material-symbols-outlined text-[22px]">analytics</span>
+<span class="text-label-sm font-label-sm mt-0.5">Risk</span>
+</a>
+<!-- 5. Resolution (Inactive) -->
+
+</nav>
+<!-- Lightweight Vanilla JS for interactive consensus button demo -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const consensusBtn = document.querySelector('button:has(span.material-symbols-outlined:contains("thumb_up"))') || document.querySelectorAll('button')[3];
+      if (consensusBtn) {
+        let hasVoted = false;
+        consensusBtn.addEventListener('click', function() {
+          if (!hasVoted) {
+            hasVoted = true;
+            this.classList.remove('bg-secondary');
+            this.classList.add('bg-primary-container', 'text-secondary-fixed');
+            this.innerHTML = '<span class="material-symbols-outlined text-[20px]">check_circle</span><span>You Confirmed This (+1)</span>';
+          }
+        });
+      }
+    });
+  </script>
+
+
+</body></html>

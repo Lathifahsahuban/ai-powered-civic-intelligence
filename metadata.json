@@ -1,0 +1,6 @@
+{
+  "name": "Civic Sentra",
+  "description": "Urban Telemetry, Incident Triage & Community Risk Dashboard for Chennai Ward 178 with AI-powered vision risk assessment and citizen consensus tracking.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
