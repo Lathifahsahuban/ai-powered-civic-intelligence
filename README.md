@@ -4,6 +4,8 @@
 **Explore our working dashboard:** https://ai.studio/apps/c374b283-2f75-46cd-9539-e45c4c2d080f
 
 Try our interactive prototype to explore the civic issue reporting dashboard and its features.
+**CLICK HERE TO VIEW OUR DEMO:https://photos.app.goo.gl/HpnJnJ1VqTkzXNxF8
+live demo check it out!!
 
 ai-powered civic intelligence system to identify,classify,and prioritize recurring civic problems
 Civic Issue Triage
