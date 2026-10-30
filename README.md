@@ -1,7 +1,7 @@
 # ai-powered-civic-intelligence
 ## 🚀 Live Prototype
 
-**Explore our working dashboard:** https://ai.studio/apps/c374b283-2f75-46cd-9539-e45c4c2d080f
+**Explore our working dashboard:** https://ai.studio/apps/c7d7b74d-73f0-4a1b-99a1-07a8516be549
 
 Try our interactive prototype to explore the civic issue reporting dashboard and its features.
 **CLICK HERE TO VIEW OUR DEMO:https://photos.app.goo.gl/HpnJnJ1VqTkzXNxF8
