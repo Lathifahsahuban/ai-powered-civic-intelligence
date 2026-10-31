@@ -1,97 +1,18 @@
-import { DashboardStats, Incident, BackendHealth } from '../types';
-
-let currentApiBase = localStorage.getItem('civic_sentra_api_base') || '/api';
-
-export function getApiBase(): string {
-  return currentApiBase;
+import type { DashboardStats, Incident, BackendHealth, ReportInput, Review } from '../types';
+let currentApiBase=import.meta.env.VITE_API_BASE || '/api';
+export const getApiBase=()=>currentApiBase;
+export function setApiBase(url:string){if(url!=='/api')throw Error('Use the same-origin /api endpoint; configure a development proxy for separate ports.');currentApiBase=url;}
+export function reporterId(){let id=localStorage.getItem('civic_reporter_id');if(!id){id=crypto.randomUUID();localStorage.setItem('civic_reporter_id',id);}return id;}
+async function request<T>(path:string,options:RequestInit={}):Promise<T>{
+  const response=await fetch(`${currentApiBase}${path}`,{...options,signal:AbortSignal.timeout(45000)});
+  const data=await response.json().catch(()=>({error:'Server returned an invalid response'}));
+  if(!response.ok)throw Error(data.error||`Request failed (${response.status})`);return data;
 }
-
-export function setApiBase(url: string): void {
-  currentApiBase = url.replace(/\/+$/, '');
-  localStorage.setItem('civic_sentra_api_base', currentApiBase);
-}
-
-export async function fetchHealth(): Promise<BackendHealth> {
-  const res = await fetch(`${currentApiBase}/health`);
-  if (!res.ok) {
-    throw new Error(`Health check failed with status ${res.status}`);
-  }
-  return res.json();
-}
-
-export async function fetchDashboardStats(): Promise<DashboardStats> {
-  const res = await fetch(`${currentApiBase}/dashboard/stats`);
-  if (!res.ok) {
-    throw new Error(`Failed to fetch stats: ${res.status}`);
-  }
-  return res.json();
-}
-
-export async function fetchIncidents(params?: { category?: string; severity?: string; status?: string; search?: string }): Promise<Incident[]> {
-  const query = new URLSearchParams();
-  if (params?.category) query.set('category', params.category);
-  if (params?.severity) query.set('severity', params.severity);
-  if (params?.status) query.set('status', params.status);
-  if (params?.search) query.set('search', params.search);
-
-  const qs = query.toString() ? `?${query.toString()}` : '';
-  const res = await fetch(`${currentApiBase}/incidents${qs}`);
-  if (!res.ok) {
-    throw new Error(`Failed to fetch incidents: ${res.status}`);
-  }
-  return res.json();
-}
-
-export async function fetchIncident(id: string | number): Promise<Incident> {
-  const res = await fetch(`${currentApiBase}/incidents/${id}`);
-  if (!res.ok) {
-    throw new Error(`Failed to fetch incident ${id}`);
-  }
-  return res.json();
-}
-
-export async function agreeIncident(id: string | number): Promise<{ ok: boolean; consensus_count: number; message: string }> {
-  const res = await fetch(`${currentApiBase}/incidents/${id}/agree`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' }
-  });
-  if (!res.ok) {
-    throw new Error(`Failed to agree to incident: ${res.status}`);
-  }
-  return res.json();
-}
-
-export async function submitTriage(data: {
-  citizen_name: string;
-  location: string;
-  description: string;
-  duration?: string;
-  impact?: string;
-  ward?: string;
-  photoBase64?: string;
-}): Promise<{ success: boolean; id: number; ref_code: string; incident: Incident; triage_result: any; message: string }> {
-  const res = await fetch(`${currentApiBase}/triage`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data)
-  });
-
-  if (!res.ok) {
-    const errData = await res.json().catch(() => ({ error: 'Submission failed' }));
-    throw new Error(errData.error || `Triage failed with status ${res.status}`);
-  }
-
-  return res.json();
-}
-
-export async function reviewReport(id: number, issue_type: string, severity: number): Promise<any> {
-  const res = await fetch(`${currentApiBase}/reports/${id}/review`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ issue_type, severity })
-  });
-  if (!res.ok) {
-    throw new Error(`Review failed with status ${res.status}`);
-  }
-  return res.json();
-}
+const post=(body:unknown,token?:string):RequestInit=>({method:'POST',headers:{'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})},body:JSON.stringify(body)});
+export const fetchHealth=()=>request<BackendHealth>('/health');
+export const fetchDashboardStats=()=>request<DashboardStats>('/dashboard/stats');
+export const fetchIncidents=(params:Record<string,string>={})=>request<Incident[]>(`/incidents?${new URLSearchParams(params)}`);
+export const fetchIncident=(id:string|number)=>request<Incident>(`/incidents/${encodeURIComponent(id)}`);
+export const agreeIncident=(id:string|number)=>request<{ok:boolean;consensus_count:number;message:string}>(`/incidents/${id}/agree`,post({reporter_id:reporterId()}));
+export const submitTriage=(input:ReportInput)=>request<{success:boolean;incident:Incident;ref_code:string;message:string}>('/triage',post({...input,reporter_id:reporterId()}));
+export const reviewReport=(id:number,review:Omit<Review,'at'>,token:string)=>request<{incident:Incident}>(`/reports/${id}/review`,post(review,token));

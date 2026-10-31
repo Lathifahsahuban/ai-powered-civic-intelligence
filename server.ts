@@ -1,572 +1,128 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
 import dotenv from 'dotenv';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import fs from 'fs';
-import { GoogleGenAI } from '@google/genai';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { timingSafeEqual } from 'node:crypto';
+import { openStore } from './backend/store.ts';
+import { assess, providerLastStatus, ruleAssessment } from './backend/triage.ts';
+import { detectRecurrence, recompute, rebuildMatches } from './backend/analysis.ts';
+import { HttpError, validateInput } from './backend/validation.ts';
+import { ISSUE_TYPES, effectiveCategory, effectiveSeverity, type StoredIncident as Incident, type Status } from './src/types.ts';
 
 dotenv.config();
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-app.use(express.json({ limit: '25mb' }));
-app.use(express.urlencoded({ extended: true, limit: '25mb' }));
-
-// Serve static assets folder
-app.use('/public', express.static(path.join(__dirname, 'public')));
-
-// In-Memory persistent data store for the live session
-interface IncidentRecord {
-  id: number;
-  ref_code: string;
-  created: string;
-  citizen_name: string;
-  photo: string;
-  description: string;
-  location: string;
-  ward: string;
-  duration: string;
-  impact: string;
-  result: {
-    issue_type: string;
-    visual_findings: string;
-    severity: number;
-    urgency: 'low' | 'medium' | 'high';
-    duration_days?: number | null;
-    people_affected: string;
-    location: string;
-    photo_matches_description: boolean;
-    missing_info: string[];
-    summary: string;
-    confidence: number;
-    needs_human_review?: boolean;
-    ai_model?: string;
-  };
-  review_needed: boolean;
-  reviewed: boolean;
-  fixed_issue?: string | null;
-  fixed_severity?: number | null;
-  consensus_count: number;
-  status: 'reported' | 'on_progress' | 'resolved';
-  stage: number;
-  lat?: number;
-  lng?: number;
-  recorded_at?: string;
-  updated_at?: string | null;
-  timezone?: string;
-  user_submitted?: boolean;
+const root=path.dirname(fileURLToPath(import.meta.url));
+const app=express(), port=Number(process.env.PORT||3000);
+if(!['rules','gemini'].includes(process.env.AI_PROVIDER||'rules'))throw Error('AI_PROVIDER must be rules or gemini');
+const store=openStore(path.resolve(process.env.DATA_DIR||path.join(root,'data')));
+// Interrupted requests remain stored; recover transparently without inventing model output.
+store.commit(items=>{for(const i of items)if(i.assessment_status==='pending'){
+  i.result=ruleAssessment({...i,photoBase64:i.photo||undefined},'Server restarted during model assessment; text rules used');i.assessment_status='complete';i.review_needed=true;
+}rebuildMatches(items);});
+app.disable('x-powered-by');
+app.use((_req,res,next)=>{res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','same-origin');next();});
+app.use('/api',(_req,res,next)=>{res.setHeader('Cache-Control','no-store');next();});
+app.use(express.json({limit:'8mb'}));
+const rates=new Map<string,{count:number;until:number}>();
+app.use('/api',(req,res,next)=>{
+  if(req.method==='GET')return next();
+  const now=Date.now(),key=req.ip||'local';
+  for(const [k,v]of rates)if(v.until<now)rates.delete(k);
+  const r=rates.get(key)||{count:0,until:now+60000};r.count++;rates.set(key,r);
+  if(r.count>60)return res.status(429).json({error:'Too many requests; retry in one minute'});
+  next();
+});
+const find=(items:Incident[],id:string)=>{const item=items.find(i=>String(i.id)===id||i.ref_code===id);if(!item)throw new HttpError(404,'Incident not found');return item;};
+const publicIncident=(i:Incident)=>{const {reporter_id,confirmation_ids,...rest}=i;return rest;};
+const asyncRoute=(fn:any)=>(req:any,res:any,next:any)=>Promise.resolve(fn(req,res)).catch(next);
+app.get('/api/health',(_req,res)=>res.json({status:'healthy',backend:'Express unified API',ai_service:process.env.AI_PROVIDER||'rules',
+  provider_configured:process.env.AI_PROVIDER==='gemini'&&Boolean(process.env.GEMINI_API_KEY),provider_last_status:providerLastStatus,
+  gemini_ready:providerLastStatus==='last_call_succeeded',ollama_ready:false,database:'atomic JSON file; single server process',ward:'Citizen supplied',timestamp:new Date().toISOString()}));
+app.get('/api/dashboard/stats',(_req,res)=>{
+  const all=store.all, categories=ISSUE_TYPES.map(id=>{
+    const matches=all.filter(i=>effectiveCategory(i)===id), max=Math.max(0,...matches.map(effectiveSeverity));
+    return {id,title:id.replaceAll('_',' '),reports:matches.length,severity:max>=5?'High / Critical':max>=4?'High':max===3?'Medium':'Low',critical:max>=5,icon:'warning',color:'cyan'};
+  });
+  res.json({total_reports:all.length,unique_events:new Set(all.map(i=>i.recurrence.event_id)).size,
+    recurring_problems:new Set(all.filter(i=>i.recurrence.recurrence_count>0).map(i=>i.recurrence.group_id)).size,
+    pending_reviews:all.filter(i=>i.review_needed&&!i.reviewed).length,resolved:all.filter(i=>i.status==='resolved').length,
+    consensus_people:all.reduce((n,i)=>n+(i.id===i.recurrence.event_id?i.consensus_count:0),0),categories,
+    live_incident:all.length?publicIncident(all.sort((a,b)=>b.priority.score-a.priority.score)[0]):null,ward:'All reported wards',zone:'Civic reports'});
+});
+app.get(['/api/incidents','/api/reports'],(req,res)=>{
+  const {category,severity,status,search}=req.query;
+  let list=store.all;
+  if(category)list=list.filter(i=>effectiveCategory(i)===category);
+  if(severity)list=list.filter(i=>severity==='high'?effectiveSeverity(i)>=4:severity==='medium'?effectiveSeverity(i)===3:severity==='low'?effectiveSeverity(i)<=2:effectiveSeverity(i)===Number(severity));
+  if(status)list=list.filter(i=>i.status===status);
+  if(typeof search==='string')list=list.filter(i=>`${i.ref_code} ${i.description} ${i.location}`.toLowerCase().includes(search.toLowerCase()));
+  res.json(list.sort((a,b)=>b.id-a.id).map(publicIncident));
+});
+app.get('/api/incidents/:id',(req,res,next)=>{try{res.json(publicIncident(find(store.all,req.params.id)));}catch(e){next(e);}});
+app.post(['/api/triage','/api/reports'],asyncRoute(async(req:any,res:any)=>{
+  const input=validateInput(req.body), now=new Date().toISOString();let id=0;
+  store.commit(items=>{
+    id=Math.max(0,...items.map(i=>i.id))+1;
+    const pending:Incident={...input,id,ref_code:`CS-${String(id).padStart(5,'0')}`,created:now,recorded_at:now,occurred_at:input.occurred_at||now,
+      citizen_name:input.citizen_name,photo:input.photoBase64||'',duration:input.duration||'',impact:input.impact||'',ward:input.ward||'Unspecified',reporter_id:input.reporter_id!,
+      result:ruleAssessment(input,'Assessment pending'),assessment_status:'pending',review_needed:true,reviewed:false,
+      consensus_count:0,confirmation_ids:[],status:'reported',stage:1,user_submitted:true,reviews:[],
+      recurrence:{kind:'new',event_id:id,recurrence_count:0,previous_ids:[],evidence:['Assessment pending'],match_method:'none'},priority:{level:'low',score:0,reasons:['Assessment pending; not yet prioritized']}};
+    // Avoid storing a second copy of a large image.
+    delete (pending as any).photoBase64;items.push(pending);
+  });
+  const assessment=await assess(input);
+  store.commit(items=>{const i=find(items,String(id));i.result=assessment;i.assessment_status='complete';i.review_needed=assessment.needs_human_review;
+    i.updated_at=new Date().toISOString();rebuildMatches(items);});
+  const incident=find(store.all,String(id));
+  res.status(201).json({success:true,id,ref_code:incident.ref_code,incident:publicIncident(incident),triage_result:assessment,message:'Report saved and assessed. No municipal dispatch is connected.'});
+}));
+app.post('/api/incidents/:id/agree',(req,res,next)=>{try{
+  const reporter=req.body?.reporter_id;
+  if(typeof reporter!=='string'||!/^[\w-]{8,100}$/.test(reporter))throw new HttpError(400,'Stable reporter_id required');
+  let id=0;
+  store.commit(items=>{const i=find(items,req.params.id);id=i.id;
+    const event=items.filter(x=>x.recurrence.event_id===i.recurrence.event_id);
+    if(!event.some(x=>x.reporter_id===reporter||x.confirmation_ids.includes(reporter)))i.confirmation_ids.push(reporter);
+    recompute(items);
+  });
+  const i=find(store.all,String(id));res.json({ok:true,consensus_count:i.consensus_count,message:'Confirmation recorded once per browser identity; this is not verified identity.'});
+}catch(e){next(e);}});
+app.post('/api/reports/:id/review',(req,res,next)=>{try{
+  const token=process.env.REVIEWER_TOKEN;
+  if(!token)throw new HttpError(503,'Reviewer actions disabled: configure REVIEWER_TOKEN on the server');
+  const provided=Buffer.from((req.headers.authorization||'').replace(/^Bearer /,'')),expected=Buffer.from(token);
+  if(provided.length!==expected.length||!timingSafeEqual(provided,expected))throw new HttpError(401,'Valid reviewer token required');
+  const b=req.body;
+  if(!b||!ISSUE_TYPES.includes(b.issue_type)||!Number.isInteger(b.severity)||b.severity<1||b.severity>5||typeof b.immediate_hazard!=='boolean'||
+    !['reported','on_progress','resolved'].includes(b.status)||typeof b.note!=='string'||b.note.trim().length<5||b.note.length>1000)throw new HttpError(400,'Provide valid category, severity 1–5, hazard flag, status and review note (5–1000 characters)');
+  store.commit(items=>{const i=find(items,req.params.id);if(i.assessment_status!=='complete')throw new HttpError(409,'Assessment still pending');
+    i.reviews.push({at:new Date().toISOString(),issue_type:b.issue_type,severity:b.severity,immediate_hazard:b.immediate_hazard,status:b.status,note:b.note.trim()});
+    i.fixed_issue=b.issue_type;i.fixed_severity=b.severity;i.status=b.status as Status;i.stage=['reported','on_progress','resolved'].indexOf(i.status)+1;
+    i.reviewed=true;i.review_needed=false;i.updated_at=new Date().toISOString();rebuildMatches(items);
+  });
+  res.json({ok:true,incident:publicIncident(find(store.all,req.params.id))});
+}catch(e){next(e);}});
+app.get('/api/export.csv',(_req,res)=>{
+  const cell=(v:unknown)=>`"${String(v??'').replace(/^[=+@-]/,"'").replaceAll('"','""')}"`;
+  const rows=[['Reference','Created UTC','Location','Description','Category','Severity','Priority','Source','Status','Event ID','Recurrence count'],
+    ...store.all.map(i=>[i.ref_code,i.created,i.location,i.description,effectiveCategory(i),effectiveSeverity(i),i.priority.level,i.result.source,i.status,i.recurrence.event_id,i.recurrence.recurrence_count])];
+  res.type('text/csv').attachment('civic-incidents.csv').send(rows.map(r=>r.map(cell).join(',')).join('\r\n'));
+});
+app.use('/api',(_req,res)=>res.status(404).json({error:'API endpoint not found'}));
+app.use((err:any,_req:any,res:any,_next:any)=>{
+  const status=err instanceof HttpError?err.status:err.type==='entity.too.large'?413:err.type==='entity.parse.failed'?400:500;
+  if(status===500)console.error('Request failed:',err);
+  res.status(status).json({error:status===500?'Unable to save or process request. Please retry.':status===413?'Request too large; maximum photo size is 5 MB':err.message});
+});
+async function start(){
+  let vite:any;
+  if(process.env.NODE_ENV!=='production'&&process.env.API_ONLY!=='true'){
+    const {createServer}=await import('vite');vite=await createServer({server:{middlewareMode:true},appType:'spa'});app.use(vite.middlewares);
+  }else if(process.env.API_ONLY!=='true'){
+    app.use(express.static(path.join(root,'dist')));app.get('*',(_req,res)=>res.sendFile(path.join(root,'dist/index.html')));
+  }
+  const server=app.listen(port,'127.0.0.1',()=>console.log(`Civic Intelligence: http://localhost:${port} (${process.env.AI_PROVIDER||'rules'})`));
+  const shutdown=()=>server.close(async()=>{await vite?.close();store.close();process.exit(0);});
+  process.on('SIGTERM',shutdown);process.on('SIGINT',shutdown);server.on('error',err=>{store.close();console.error(err);process.exit(1);});
 }
-
-const incidents: IncidentRecord[] = [
-  {
-    id: 1,
-    ref_code: 'CS-8921',
-    user_submitted: false,
-    created: 'Today, 08:15 AM',
-    recorded_at: '23 October 2026, 08:15:00 IST (UTC+05:30)',
-    updated_at: '23 October 2026, 08:29:12 IST (UTC+05:30)',
-    timezone: 'IST (UTC+05:30)',
-    citizen_name: 'Ramesh Kumar',
-    photo: '/public/assets/aistudio/Image_1_07ccf57d.jpeg',
-    description: 'Heavy monsoon runoff accumulating at low-lying intersection. Municipal silt suction truck deployed; storm drain clearance underway.',
-    location: 'Velachery Main Rd, near 100ft Bypass Junction',
-    ward: 'Ward 178',
-    duration: '3 days',
-    impact: 'Two-wheelers skidding, severe congestion at low-lying intersection.',
-    result: {
-      issue_type: 'drainage_waterlogging',
-      visual_findings: 'Road immersion depth (~18cm), blocked curb storm grating, vehicle tyre submersion, and culvert sedimentation risk.',
-      severity: 4,
-      urgency: 'high',
-      duration_days: 3,
-      people_affected: '142 neighbors confirmed this along 100ft Bypass Rd corridor',
-      location: '100ft Bypass Rd, near Velachery Lake junction',
-      photo_matches_description: true,
-      missing_info: [],
-      summary: 'Heavy waterlogging and clogged drain near the bypass junction causing road cavity and bike skidding risk.',
-      confidence: 0.94,
-      needs_human_review: true,
-      ai_model: 'Civic-Vision-Qwen2.5 / Gemini Hybrid'
-    },
-    review_needed: true,
-    reviewed: false,
-    consensus_count: 142,
-    status: 'on_progress',
-    stage: 2,
-    lat: 12.9784,
-    lng: 80.2212
-  },
-  {
-    id: 2,
-    ref_code: 'CS-8922',
-    user_submitted: false,
-    created: 'Today, 07:40 AM',
-    recorded_at: '23 October 2026, 07:40:00 IST (UTC+05:30)',
-    updated_at: '23 October 2026, 07:45:00 IST (UTC+05:30)',
-    timezone: 'IST (UTC+05:30)',
-    citizen_name: 'Adyar Citizen Forum',
-    photo: '/public/assets/aistudio/Image_5_1b6422f8.jpeg',
-    description: 'Trench caved in around sewer manhole cover. Hazard markers needed.',
-    location: 'Gandhi Road Junction - Deep Potholes',
-    ward: 'Ward 178',
-    duration: '5 days',
-    impact: 'High vehicle rim damage, risk of fatal falls for cyclists',
-    result: {
-      issue_type: 'pothole',
-      visual_findings: 'Asphalt cavity crater surrounding circular iron manhole frame with loose aggregate and compromised subgrade.',
-      severity: 4,
-      urgency: 'high',
-      duration_days: 5,
-      people_affected: '68 neighbor confirmations',
-      location: 'Gandhi Road Junction',
-      photo_matches_description: true,
-      missing_info: [],
-      summary: 'Severe road cavity and trench cave-in surrounding sewer manhole cover. Hazard markers needed.',
-      confidence: 0.91,
-      needs_human_review: true,
-      ai_model: 'Civic-Vision-Qwen2.5 / Gemini Hybrid'
-    },
-    review_needed: true,
-    reviewed: false,
-    consensus_count: 68,
-    status: 'reported',
-    stage: 1,
-    lat: 12.9760,
-    lng: 80.2185
-  }
-];
-
-let baseTotalReports = 1428;
-
-// Deterministic Triage Rule Engine Fallback
-function ruleBasedTriage(desc: string, loc: string, dur: string, imp: string) {
-  const text = (desc + ' ' + imp).toLowerCase();
-  let issue_type = 'drainage_waterlogging';
-  let severity = 3;
-  let urgency: 'low' | 'medium' | 'high' = 'medium';
-  let visual_findings = 'Visual inspection shows physical civic infrastructure distress requiring municipal intervention.';
-  let summary = `Reported civic problem at ${loc}. Field crew alerted for inspection.`;
-
-  if (text.includes('waterlog') || text.includes('flood') || text.includes('drain') || text.includes('silt') || text.includes('runoff')) {
-    issue_type = 'drainage_waterlogging';
-    severity = (text.includes('deep') || text.includes('heavy') || text.includes('blocked') || text.includes('skid')) ? 4 : 3;
-    urgency = severity >= 4 ? 'high' : 'medium';
-    visual_findings = 'Road surface submerged with stagnant runoff; stormwater drainage intake obstructed by silt and debris.';
-    summary = 'Heavy waterlogging and clogged drain causing localized street flooding and commuter skidding risk.';
-  } else if (text.includes('manhole') || text.includes('cover') || text.includes('open drain')) {
-    issue_type = 'open_manhole';
-    severity = 5;
-    urgency = 'high';
-    visual_findings = 'Exposed cavity or displaced manhole rim posing direct threat of vehicular trapping or pedestrian fall.';
-    summary = 'Critical hazard: Damaged or open manhole cover detected. Emergency barricading dispatched.';
-  } else if (text.includes('pothole') || text.includes('cavity') || text.includes('crater') || text.includes('caved')) {
-    issue_type = 'pothole';
-    severity = text.includes('deep') ? 4 : 3;
-    urgency = severity >= 4 ? 'high' : 'medium';
-    visual_findings = 'Asphalt subgrade erosion causing asphalt craters along vehicular carriageway.';
-    summary = 'Potholes and road cavities observed. Patching crew scheduled.';
-  } else if (text.includes('garbage') || text.includes('waste') || text.includes('trash') || text.includes('dump')) {
-    issue_type = 'garbage';
-    severity = 3;
-    urgency = 'medium';
-    visual_findings = 'Uncollected municipal solid waste accumulating along street boundary.';
-    summary = 'Garbage accumulation obstructing pedestrian right-of-way. Sanitation compactor dispatched.';
-  } else if (text.includes('light') || text.includes('dark') || text.includes('lamp')) {
-    issue_type = 'streetlight';
-    severity = 2;
-    urgency = 'low';
-    visual_findings = 'Non-operational street luminaire creating reduced night illumination.';
-    summary = 'Streetlight failure identified. Electrical line crew notified.';
-  }
-
-  return {
-    issue_type,
-    visual_findings,
-    severity,
-    urgency,
-    duration_days: dur.includes('week') ? 7 : (dur.includes('day') ? 3 : 1),
-    people_affected: imp || 'Local neighborhood residents and commuters',
-    location: loc || 'Ward 178, Chennai',
-    photo_matches_description: true,
-    missing_info: [],
-    summary,
-    confidence: 0.94,
-    needs_human_review: severity >= 4 || urgency === 'high',
-    ai_model: 'Civic-Sentra-Vision-Engine'
-  };
-}
-
-// ==========================================
-// API ROUTES
-// ==========================================
-
-// GET /api/health
-app.get('/api/health', (req: Request, res: Response) => {
-  const geminiConfigured = Boolean(process.env.GEMINI_API_KEY);
-  res.json({
-    status: 'healthy',
-    backend: 'Express Full-Stack / Python Flask Interop',
-    ai_service: geminiConfigured ? 'Gemini 2.5 Vision + Ollama Local' : 'Local Rule Engine + Ollama',
-    gemini_ready: geminiConfigured,
-    ollama_ready: true,
-    database: 'active',
-    ward: 'Ward 178 (Chennai South)',
-    timestamp: new Date().toISOString()
-  });
-});
-
-function categorizeIncidentRecord(incident: IncidentRecord): string {
-  const issueType = (incident.result?.issue_type || '').toLowerCase();
-  const desc = (incident.description || '').toLowerCase();
-  const visual = (incident.result?.visual_findings || '').toLowerCase();
-  const combined = `${issueType} ${desc} ${visual}`;
-
-  if (issueType.includes('open_manhole') || combined.includes('manhole') || combined.includes('drain cover') || combined.includes('chamber cover')) {
-    return 'manholes';
-  }
-  if (issueType.includes('pothole') || combined.includes('pothole') || combined.includes('crater') || combined.includes('asphalt cavity') || combined.includes('road damaged')) {
-    return 'potholes';
-  }
-  if (issueType.includes('garbage') || combined.includes('garbage') || combined.includes('waste') || combined.includes('trash') || combined.includes('dump') || combined.includes('debris')) {
-    return 'garbage';
-  }
-  if (issueType.includes('streetlight') || combined.includes('streetlight') || combined.includes('street light') || combined.includes('dark stretch') || combined.includes('lamp post')) {
-    return 'streetlights';
-  }
-  if (issueType.includes('drinking') || combined.includes('drinking water') || combined.includes('pipe burst') || combined.includes('pipeline leak') || combined.includes('metro water')) {
-    return 'drinking_water';
-  }
-  if (issueType.includes('tree') || combined.includes('fallen tree') || combined.includes('tree branch') || combined.includes('uprooted') || combined.includes('dangerous branches')) {
-    return 'trees';
-  }
-  if (issueType.includes('traffic') || combined.includes('traffic signal') || combined.includes('pedestrian') || combined.includes('zebra crossing') || combined.includes('traffic light')) {
-    return 'traffic';
-  }
-  if (issueType.includes('toilet') || issueType.includes('sanitation') || combined.includes('public toilet') || combined.includes('sanitation') || combined.includes('urinal')) {
-    return 'sanitation';
-  }
-  if (combined.includes('drain') || combined.includes('sewage') || combined.includes('culvert') || combined.includes('silt') || combined.includes('overflow')) {
-    return 'drainage';
-  }
-  if (issueType.includes('waterlog') || combined.includes('waterlog') || combined.includes('flood') || combined.includes('inundat') || combined.includes('submerged')) {
-    return 'waterlogging';
-  }
-  return 'waterlogging';
-}
-
-// GET /api/dashboard/stats
-app.get('/api/dashboard/stats', (req: Request, res: Response) => {
-  const userReports = incidents.filter(i => i.user_submitted === true);
-  const totalReportsCount = baseTotalReports + userReports.length;
-  const primaryIncident = incidents.find(i => i.ref_code === 'CS-8921') || incidents[0];
-
-  const categoryDefs = [
-    { id: 'waterlogging', title: 'Waterlogging & Flooding', icon: 'flood', color: 'blue' },
-    { id: 'drainage', title: 'Blocked Drains & Sewage Overflow', icon: 'water_damage', color: 'cyan' },
-    { id: 'garbage', title: 'Garbage Accumulation & Waste Management', icon: 'delete_outline', color: 'amber' },
-    { id: 'potholes', title: 'Potholes & Damaged Roads', icon: 'crisis_alert', color: 'orange' },
-    { id: 'streetlights', title: 'Streetlight Failures', icon: 'lightbulb', color: 'slate' },
-    { id: 'drinking_water', title: 'Drinking Water Problems & Leakage', icon: 'water_drop', color: 'teal' },
-    { id: 'trees', title: 'Fallen Trees & Dangerous Branches', icon: 'nature', color: 'emerald' },
-    { id: 'traffic', title: 'Traffic Signals & Pedestrian Safety', icon: 'traffic', color: 'purple' },
-    { id: 'manholes', title: 'Open Manholes & Damaged Drain Covers', icon: 'warning', color: 'red' },
-    { id: 'sanitation', title: 'Public Toilets & Sanitation', icon: 'wc', color: 'blue' }
-  ];
-
-  const categories = categoryDefs.map(cat => {
-    const matching = userReports.filter(r => categorizeIncidentRecord(r) === cat.id);
-    const count = matching.length;
-    let severity: 'Low' | 'Medium' | 'High' | 'High / Critical' = 'Low';
-    let critical = false;
-    if (count > 0) {
-      const maxSev = Math.max(...matching.map(m => m.result?.severity || 3));
-      if (maxSev >= 5 || cat.id === 'manholes') {
-        severity = 'High / Critical';
-        critical = true;
-      } else if (maxSev === 4) {
-        severity = 'High';
-      } else if (maxSev === 3) {
-        severity = 'Medium';
-      } else {
-        severity = 'Low';
-      }
-    }
-    return {
-      ...cat,
-      reports: count,
-      severity,
-      critical
-    };
-  });
-
-  res.json({
-    ward: 'Ward 178, Chennai',
-    zone: 'Zone 13 South',
-    total_reports: totalReportsCount,
-    consensus_people: primaryIncident ? primaryIncident.consensus_count : 142,
-    live_incident: primaryIncident,
-    flood_telemetry: {
-      sensor: 'Velachery Flood Grid Telemetry',
-      water_level: '+0.42m',
-      status: 'RAPID CELL ONLINE',
-      rapid_cell_distance: '1.2 km away on Velachery Main Corridor',
-      eta_mins: 30
-    },
-    categories,
-    hotspot: {
-      name: 'Ward Geospatial Cluster',
-      location: '100ft Bypass Rd',
-      corridor: 'Velachery Drainage Corridor',
-      depth_cm: 84,
-      nearby_reports: 14,
-      active_zone: true
-    }
-  });
-});
-
-// GET /api/incidents or /api/reports
-app.get(['/api/incidents', '/api/reports'], (req: Request, res: Response) => {
-  let list = [...incidents];
-  const { category, severity, status, search } = req.query;
-
-  if (category && typeof category === 'string') {
-    list = list.filter(i => i.result.issue_type.includes(category.toLowerCase()));
-  }
-  if (severity && typeof severity === 'string') {
-    list = list.filter(i => {
-      if (severity === 'high') return i.result.severity >= 4;
-      if (severity === 'medium') return i.result.severity === 3;
-      return i.result.severity <= 2;
-    });
-  }
-  if (status && typeof status === 'string') {
-    list = list.filter(i => i.status === status);
-  }
-  if (search && typeof search === 'string') {
-    const s = search.toLowerCase();
-    list = list.filter(i =>
-      i.description.toLowerCase().includes(s) ||
-      i.location.toLowerCase().includes(s) ||
-      i.ref_code.toLowerCase().includes(s)
-    );
-  }
-
-  res.json(list);
-});
-
-// GET /api/incidents/:id
-app.get('/api/incidents/:id', (req: Request, res: Response) => {
-  const id = parseInt(req.params.id);
-  const item = incidents.find(i => i.id === id || i.ref_code === req.params.id);
-  if (!item) {
-    return res.status(404).json({ error: 'Incident not found' });
-  }
-  res.json(item);
-});
-
-// POST /api/incidents/:id/agree (+1 consensus)
-app.post('/api/incidents/:id/agree', (req: Request, res: Response) => {
-  const id = parseInt(req.params.id);
-  const item = incidents.find(i => i.id === id || i.ref_code === req.params.id);
-  if (!item) {
-    return res.status(404).json({ error: 'Incident not found' });
-  }
-  item.consensus_count += 1;
-  res.json({
-    ok: true,
-    id: item.id,
-    ref_code: item.ref_code,
-    consensus_count: item.consensus_count,
-    message: `Thank you! Your confirmation for #${item.ref_code} has been registered.`
-  });
-});
-
-// POST /api/triage
-app.post('/api/triage', async (req: Request, res: Response) => {
-  try {
-    const {
-      description = '',
-      location = '100ft Bypass Rd, Velachery, Ward 178',
-      duration = '3 days',
-      impact = 'Heavy traffic block and bike skidding risk',
-      citizen_name = 'Ramesh Kumar',
-      ward = 'Ward 178',
-      photoBase64 = ''
-    } = req.body;
-
-    if (!description && !location) {
-      return res.status(400).json({ error: 'Please provide a situation description or location.' });
-    }
-
-    let triageResult = ruleBasedTriage(description, location, duration, impact);
-
-    // If Gemini API is available and image was passed or user description is detailed
-    if (process.env.GEMINI_API_KEY) {
-      try {
-        const ai = new GoogleGenAI();
-        const prompt = `You triage citizen reports of civic problems (waterlogging, drainage, potholes, garbage, open manhole, etc.).
-Location: ${location}
-Description: ${description}
-Duration: ${duration}
-Impact: ${impact}
-
-Return a valid JSON object matching this schema:
-{
-  "issue_type": "drainage_waterlogging" | "pothole" | "garbage" | "streetlight" | "open_manhole" | "other",
-  "visual_findings": "Concise factual statement about physical hazards visible",
-  "severity": number (1 to 5),
-  "urgency": "low" | "medium" | "high",
-  "duration_days": number,
-  "people_affected": "Summary of impacted residents",
-  "location": "${location}",
-  "photo_matches_description": true,
-  "missing_info": [],
-  "summary": "Exactly two concise sentences summarizing the risk and required municipal action.",
-  "confidence": 0.94
-}`;
-
-        const parts: any[] = [{ text: prompt }];
-
-        if (photoBase64 && photoBase64.startsWith('data:image/')) {
-          const match = photoBase64.match(/^data:image\/([a-zA-Z0-9]+);base64,(.+)$/);
-          if (match) {
-            const mimeType = `image/${match[1] === 'jpg' ? 'jpeg' : match[1]}`;
-            parts.push({
-              inlineData: {
-                mimeType,
-                data: match[2]
-              }
-            });
-          }
-        }
-
-        const aiResponse = await ai.models.generateContent({
-          model: 'gemini-2.5-flash',
-          contents: parts,
-          config: {
-            responseMimeType: 'application/json',
-            temperature: 0.1
-          }
-        });
-
-        if (aiResponse.text) {
-          const parsed = JSON.parse(aiResponse.text);
-          triageResult = {
-            ...triageResult,
-            ...parsed,
-            needs_human_review: (parsed.severity || 3) >= 4 || parsed.urgency === 'high',
-            ai_model: 'Gemini 2.5 Flash Vision'
-          };
-        }
-      } catch (geminiErr) {
-        console.warn('Gemini vision API inference fallback to rule-engine:', geminiErr);
-        triageResult.ai_model = 'Civic-Sentra-Deterministic-Engine (Ollama/Gemini fallback)';
-      }
-    }
-
-    const nextId = incidents.length + 1;
-    const ref_code = `CS-${8920 + nextId}`;
-
-    const now = new Date();
-    const day = String(now.getDate()).padStart(2, '0');
-    const month = now.toLocaleString('en-US', { month: 'long' });
-    const year = now.getFullYear();
-    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
-    const fullTimestamp = `${day} ${month} ${year}, ${timeStr} IST (UTC+05:30)`;
-
-    const newIncident: IncidentRecord = {
-      id: nextId,
-      ref_code,
-      user_submitted: true,
-      created: `Today, ${timeStr.slice(0, 5)}`,
-      recorded_at: fullTimestamp,
-      updated_at: null,
-      timezone: 'IST (UTC+05:30)',
-      citizen_name: citizen_name || 'Verified Citizen',
-      photo: photoBase64 || '/public/assets/aistudio/Image_5_1b6422f8.jpeg',
-      description,
-      location,
-      ward: ward || 'Ward 178',
-      duration,
-      impact,
-      result: triageResult,
-      review_needed: triageResult.needs_human_review || false,
-      reviewed: false,
-      consensus_count: 1,
-      status: triageResult.severity >= 3 ? 'on_progress' : 'reported',
-      stage: triageResult.severity >= 3 ? 2 : 1,
-      lat: 12.9784,
-      lng: 80.2212
-    };
-
-    incidents.unshift(newIncident);
-
-    res.json({
-      success: true,
-      id: newIncident.id,
-      ref_code: newIncident.ref_code,
-      incident: newIncident,
-      triage_result: triageResult,
-      message: 'Report filed and analyzed successfully. Alert dispatched to Ward 178 Rapid Cell.'
-    });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message || 'Triage submission failed' });
-  }
-});
-
-// POST /api/reports/:id/review
-app.post('/api/reports/:id/review', (req: Request, res: Response) => {
-  const id = parseInt(req.params.id);
-  const { issue_type, severity } = req.body;
-  const item = incidents.find(i => i.id === id);
-  if (!item) {
-    return res.status(404).json({ error: 'Incident not found' });
-  }
-  item.reviewed = true;
-  if (issue_type) item.fixed_issue = issue_type;
-  if (severity) item.fixed_severity = severity;
-
-  res.json({ ok: true, incident: item });
-});
-
-// GET /api/export.csv
-app.get('/api/export.csv', (req: Request, res: Response) => {
-  let csv = 'Incident Ref,Created,Citizen Name,Location,Description,AI Issue Type,Severity (1-5),Urgency,Consensus Count,Status\n';
-  for (const item of incidents) {
-    const safeDesc = `"${item.description.replace(/"/g, '""')}"`;
-    const safeLoc = `"${item.location.replace(/"/g, '""')}"`;
-    csv += `${item.ref_code},${item.created},"${item.citizen_name}",${safeLoc},${safeDesc},${item.result.issue_type},${item.result.severity},${item.result.urgency},${item.consensus_count},${item.status}\n`;
-  }
-  res.setHeader('Content-Type', 'text/csv');
-  res.setHeader('Content-Disposition', 'attachment; filename="civic_sentra_ward178.csv"');
-  res.send(csv);
-});
-
-// ==========================================
-// VITE OR STATIC FRONTEND MOUNT
-// ==========================================
-async function startServer() {
-  if (process.env.NODE_ENV !== 'production') {
-    const { createServer: createViteServer } = await import('vite');
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: 'spa'
-    });
-    app.use(vite.middlewares);
-  } else {
-    app.use(express.static(path.join(__dirname, 'dist')));
-    app.get('*', (req: Request, res: Response) => {
-      res.sendFile(path.join(__dirname, 'dist', 'index.html'));
-    });
-  }
-
-  app.listen(PORT, () => {
-    console.log(`[Civic Sentra] Unified Web & API Server running on port ${PORT}`);
-  });
-}
-
-startServer();
+start().catch(err=>{store.close();console.error(err);process.exit(1);});

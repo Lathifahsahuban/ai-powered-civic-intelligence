@@ -1,4 +1,2 @@
-flask>=3.0.0
-flask-cors>=4.0.0
-pydantic>=2.0.0
-ollama>=0.3.0
+# No Python packages required. triage.py is a stdlib HTTP client.
+# Node/Express is the single backend; do not start a separate Flask/Ollama service.

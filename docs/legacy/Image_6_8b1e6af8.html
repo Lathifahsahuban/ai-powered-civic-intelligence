@@ -1,0 +1,423 @@
+<!DOCTYPE html><html class="h-full" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+<title>Civic Sentra - Citizen Report &amp; AI Handoff</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-primary-fixed": "#031e2b",
+            "surface-variant": "#d3e4fe",
+            "tertiary-container": "#003127",
+            "on-tertiary-fixed-variant": "#005142",
+            "surface-container-high": "#dce9ff",
+            "on-tertiary-container": "#1ea488",
+            "secondary-fixed": "#95f1ff",
+            "primary-fixed-dim": "#b1cadb",
+            "primary-container": "#142d3a",
+            "outline": "#73787c",
+            "inverse-primary": "#b1cadb",
+            "surface-container-lowest": "#ffffff",
+            "secondary": "#006874",
+            "on-secondary-fixed": "#001f24",
+            "secondary-fixed-dim": "#79d4e2",
+            "tertiary-fixed": "#82f7d8",
+            "inverse-surface": "#213145",
+            "error-container": "#ffdad6",
+            "error": "#ba1a1a",
+            "on-primary-container": "#7c95a5",
+            "on-surface-variant": "#42474b",
+            "primary-fixed": "#cde6f7",
+            "on-tertiary-fixed": "#002019",
+            "inverse-on-surface": "#eaf1ff",
+            "on-primary": "#ffffff",
+            "on-secondary-fixed-variant": "#004f57",
+            "on-error-container": "#93000a",
+            "secondary-container": "#95f1ff",
+            "surface-container-highest": "#d3e4fe",
+            "on-error": "#ffffff",
+            "surface-container-low": "#eff4ff",
+            "on-secondary-container": "#006f7b",
+            "surface-tint": "#4a6270",
+            "outline-variant": "#c2c7cb",
+            "on-secondary": "#ffffff",
+            "on-surface": "#0b1c30",
+            "surface-dim": "#cbdbf5",
+            "primary": "#001824",
+            "on-primary-fixed-variant": "#324a58",
+            "on-tertiary": "#ffffff",
+            "tertiary-fixed-dim": "#65dabc",
+            "on-background": "#0b1c30",
+            "surface-bright": "#f8f9ff",
+            "tertiary": "#001a14",
+            "surface": "#f8f9ff",
+            "surface-container": "#e5eeff",
+            "background": "#f8f9ff"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "space-xs": "0.25rem",
+            "space-md": "1rem",
+            "space-xl": "2.5rem",
+            "gutter-mobile": "1rem",
+            "margin": "2rem",
+            "margin-mobile": "1rem",
+            "gutter": "1.5rem",
+            "space-lg": "1.5rem",
+            "space-sm": "0.5rem"
+          },
+          "fontFamily": {
+            "headline-md": ["Plus Jakarta Sans"],
+            "body-md": ["Inter"],
+            "headline-xl": ["Plus Jakarta Sans"],
+            "label-md": ["Inter"],
+            "body-lg": ["Inter"],
+            "body-sm": ["Inter"],
+            "headline-sm": ["Plus Jakarta Sans"],
+            "label-lg": ["Inter"],
+            "headline-xl-mobile": ["Plus Jakarta Sans"],
+            "headline-lg-mobile": ["Plus Jakarta Sans"],
+            "headline-lg": ["Plus Jakarta Sans"],
+            "label-sm": ["Inter"]
+          },
+          "fontSize": {
+            "headline-md": ["1.5rem", { "lineHeight": "2rem", "fontWeight": "600" }],
+            "body-md": ["1rem", { "lineHeight": "1.5rem", "fontWeight": "400" }],
+            "headline-xl": ["3rem", { "lineHeight": "3.5rem", "fontWeight": "700" }],
+            "label-md": ["0.75rem", { "lineHeight": "1rem", "fontWeight": "600" }],
+            "body-lg": ["1.125rem", { "lineHeight": "1.75rem", "fontWeight": "400" }],
+            "body-sm": ["0.875rem", { "lineHeight": "1.25rem", "fontWeight": "400" }],
+            "headline-sm": ["1.25rem", { "lineHeight": "1.75rem", "fontWeight": "600" }],
+            "label-lg": ["0.875rem", { "lineHeight": "1.25rem", "fontWeight": "600" }],
+            "headline-xl-mobile": ["2.25rem", { "lineHeight": "2.75rem", "fontWeight": "700" }],
+            "headline-lg-mobile": ["1.75rem", { "lineHeight": "2.25rem", "fontWeight": "700" }],
+            "headline-lg": ["2.25rem", { "lineHeight": "2.75rem", "fontWeight": "700" }],
+            "label-sm": ["0.6875rem", { "lineHeight": "0.875rem", "fontWeight": "600" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .material-symbols-outlined[data-weight="fill"] {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface antialiased flex flex-col min-h-screen selection:bg-secondary-fixed selection:text-on-secondary-fixed">
+<!-- 1. Top Bar: Civic Sentra Shared Anchor Component -->
+<header class="bg-surface dark:bg-primary-container shadow-sm dark:shadow-none docked full-width top-0 sticky z-40">
+<div class="flex justify-between items-center w-full px-margin-mobile py-space-sm max-w-7xl mx-auto">
+<!-- Leading Icon + Headline Brand -->
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary dark:text-inverse-primary text-2xl" data-icon="hub">hub</span>
+<div class="flex flex-col">
+<span class="text-headline-sm font-headline-sm font-bold text-primary dark:text-surface-bright tracking-tight leading-none">CIVIC SENTRA</span>
+<div class="flex items-center gap-1 mt-0.5">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary inline-block"></span>
+<span class="font-label-sm text-label-sm text-secondary uppercase font-semibold tracking-wider">Ward 178, Chennai</span>
+</div>
+</div>
+</div>
+<!-- Trailing Notification & Fast Profile Cluster -->
+<div class="flex items-center gap-2">
+<button aria-label="Notifications" class="relative p-space-xs rounded-lg hover:bg-surface-container-high dark:hover:bg-primary transition-colors duration-150 active:scale-95 text-primary dark:text-inverse-primary" type="button">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-error border border-surface"></span>
+</button>
+</div>
+</div>
+<!-- Sub-header / Steps Bar -->
+<div class="bg-surface-container-low px-margin-mobile py-2 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="font-label-md text-label-md font-bold text-primary flex items-center gap-1.5">
+<span class="material-symbols-outlined text-secondary text-sm" data-icon="edit_note">edit_note</span>
+          Quick Citizen Report
+        </span>
+<span class="text-label-sm font-label-sm text-on-surface-variant bg-surface-container px-2 py-0.5 rounded-full font-medium">Step 1 of 1</span>
+</div>
+<div class="flex items-center gap-1 text-secondary text-label-sm font-label-sm font-semibold">
+<span class="inline-block w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+        Direct Triage Link
+      </div>
+</div>
+</header>
+<!-- Main Scrollable Content Container -->
+<main class="flex-1 w-full max-w-xl mx-auto px-margin-mobile pt-space-md pb-28 flex flex-col gap-space-md">
+<!-- Operational Telemetry Ping Ticker -->
+<div class="flex items-center justify-between px-space-md py-2 bg-surface-container-lowest rounded-xl border border-outline-variant/30 text-label-sm font-label-sm shadow-sm">
+<div class="flex items-center gap-2">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-secondary"></span>
+</span>
+<span class="font-medium text-on-surface-variant">Velachery Flood Grid Telemetry:</span>
+<span class="font-bold text-primary">Water Level +0.42m</span>
+</div>
+<span class="text-secondary font-semibold">RAPID CELL ONLINE</span>
+</div>
+<!-- 2. Citizen Input Form Card -->
+<section class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 p-space-md shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center justify-between border-b border-surface-container-high pb-2">
+<h2 class="font-headline-sm text-headline-sm text-primary flex items-center gap-1.5">
+<span class="material-symbols-outlined text-secondary" data-icon="campaign">campaign</span>
+          Incident Filing Details
+        </h2>
+<span class="font-label-sm text-label-sm uppercase bg-surface-container text-on-surface-variant px-2 py-0.5 rounded tracking-wider">Public Channel</span>
+</div>
+<form class="flex flex-col gap-space-md" id="incident-report-form" onsubmit="event.preventDefault(); document.getElementById('tracking-card').classList.remove('hidden'); document.getElementById('tracking-card').scrollIntoView({behavior: 'smooth'});">
+<!-- Field 1: Citizen Name -->
+<div class="flex flex-col gap-1">
+<label class="font-label-md text-label-md text-primary font-semibold flex items-center justify-between" for="citizen-name">
+<span class="">1. Citizen Name</span>
+<span class="text-on-surface-variant font-normal text-label-sm font-label-sm">Verified via CivicID</span>
+</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-outline text-lg" data-icon="person">person</span>
+<input class="w-full pl-9 pr-3 py-2 bg-surface-container-lowest border border-outline-variant/40 rounded-lg text-primary font-body-sm text-body-sm focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent transition-all" id="citizen-name" placeholder="e.g. Ramesh Kumar" required="" type="text" value="Ramesh Kumar">
+</div>
+</div>
+<!-- Field 2: Location Input with GPS -->
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<label class="font-label-md text-label-md text-primary font-semibold" for="incident-location">
+              2. Incident Location
+            </label>
+<button class="inline-flex items-center gap-1 px-2 py-0.5 bg-surface-container-low text-secondary border border-secondary/30 rounded font-label-sm text-label-sm font-semibold active:scale-95 transition-transform" type="button">
+<span class="material-symbols-outlined text-xs" data-icon="my_location">my_location</span>
+              Use Current GPS
+            </button>
+</div>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-secondary text-lg" data-icon="pin_drop">pin_drop</span>
+<input class="w-full pl-9 pr-20 py-2 bg-surface-container-lowest border border-outline-variant/40 rounded-lg text-primary font-body-sm text-body-sm focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent transition-all" id="incident-location" required="" type="text" value="100ft Bypass Rd, Velachery, Ward 178">
+<span class="absolute right-2.5 font-label-sm text-label-sm px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant font-medium">
+              ±3m GPS Acc.
+            </span>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Zone: South Chennai Division • Velachery Basin Sector 4</p>
+</div>
+<!-- Field 3: Photo Upload Zone -->
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-primary font-semibold flex items-center justify-between">
+<span class="">3. Photo Evidence Zone</span>
+<span class="text-secondary font-label-sm text-label-sm font-medium flex items-center gap-0.5">
+<span class="material-symbols-outlined text-xs" data-icon="verified">verified</span> Auto-Verified
+            </span>
+</label>
+<!-- Upload Box / Photo Preview -->
+<div class="border border-outline-variant/50 rounded-xl overflow-hidden bg-surface-container-low p-2">
+<div class="relative h-44 w-full rounded-lg overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="A documentary eye-level photograph of heavy monsoon waterlogging covering an urban asphalt street at a bypass junction. The scene shows murky rainwater accumulating against concrete drainage curbs with a partially blocked storm drain grating. The visual palette includes muted slate greys, deep puddle reflections, and soft overcast daylight under the high-contrast institutional civic tech aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDRxLHZ7EAYBxCX05DJcOahpf6tPGjvvWaISSf1VR_evkZLRC1cUWIhHM3MZ-VeNMmq8wzpRBSq0gn043PUAd-g8bBs9hrMjOvaKW1-2u1YQKWbjn5Opk9iOiHLEPIuhPv1Z5mhNFMCZpH95COHVlTa6yQon5ua2mban5JiMNNLn9b_-Ye-F41txK7_mQJPJIusrNKiyFcqxa73n-RH_snNH8x6eIPjRmqbIp3cXJW2JgWdv94m2nVZ">
+<!-- Floating Metadata Badges -->
+<div class="absolute top-2 left-2 flex flex-col gap-1">
+<span class="bg-primary/80 backdrop-blur-sm text-surface-bright text-label-sm font-label-sm px-2 py-0.5 rounded font-mono inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-xs text-secondary-fixed" data-icon="schedule">schedule</span>
+                  Captured: Today, 09:14 AM (Auto-stamped)
+                </span>
+<span class="bg-primary/80 backdrop-blur-sm text-surface-bright text-label-sm font-label-sm px-2 py-0.5 rounded font-mono inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-xs text-secondary-fixed" data-icon="navigation">navigation</span>
+                  Geotag: 12.9784° N, 80.2212° E
+                </span>
+</div>
+<!-- Retake / Replace Action -->
+<button class="absolute bottom-2 right-2 bg-surface-container-lowest/90 backdrop-blur-sm text-primary hover:bg-surface-container-lowest px-2.5 py-1 rounded-lg text-label-sm font-label-sm font-semibold shadow-sm flex items-center gap-1 active:scale-95 transition-all" type="button">
+<span class="material-symbols-outlined text-sm" data-icon="photo_camera">photo_camera</span>
+                Retake
+              </button>
+</div>
+<div class="mt-2 flex items-center justify-between px-1 text-label-sm font-label-sm text-on-surface-variant">
+<span class="">File: IMG_20241028_0914.jpg (4.2 MB)</span>
+<span class="text-secondary font-semibold">Exif metadata verified</span>
+</div>
+</div>
+</div>
+<!-- Field 4: Description Box -->
+<div class="flex flex-col gap-1">
+<label class="font-label-md text-label-md text-primary font-semibold flex items-center justify-between" for="incident-description">
+<span class="">4. Situation Description</span>
+<span class="text-on-surface-variant font-normal text-label-sm font-label-sm">Detailed telemetry aid</span>
+</label>
+<textarea class="w-full p-2.5 bg-surface-container-lowest border border-outline-variant/40 rounded-lg text-primary font-body-sm text-body-sm focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent transition-all leading-relaxed" id="incident-description" placeholder="Describe what you see and the current situation..." rows="3">Heavy waterlogging and clogged drain near the bypass junction causing road cavity and bike skidding risk</textarea>
+<div class="flex justify-between items-center text-label-sm font-label-sm text-on-surface-variant mt-0.5">
+<span class="">Includes: Drainage blockage + Skidding traffic hazard</span>
+<span class="">108 / 300 chars</span>
+</div>
+</div>
+<!-- Field 5: One-Tap Prominent Submit Button -->
+<div class="pt-1">
+<button class="w-full bg-primary-container hover:bg-secondary text-surface-bright py-3.5 px-space-md rounded-lg font-headline-sm text-headline-sm flex items-center justify-center gap-2 shadow-md hover:shadow-lg active:scale-98 transition-all duration-150" type="submit">
+<span class="material-symbols-outlined text-xl" data-icon="send">send</span>
+            One-Tap Instant Submit Report
+          </button>
+<p class="text-center text-label-sm font-label-sm text-on-surface-variant mt-2 flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-xs text-secondary" data-icon="lock">lock</span>
+            Direct encrypted relay to Greater Chennai Disaster Authority
+          </p>
+</div>
+</form>
+</section>
+<!-- 3. Immediate Response & Status Tracking Banner / Card -->
+<section class="bg-surface-container-lowest rounded-xl border border-secondary/30 p-space-md shadow-sm flex flex-col gap-3 relative overflow-hidden" id="tracking-card">
+<div class="absolute -right-6 -bottom-6 opacity-5 pointer-events-none">
+<span class="material-symbols-outlined text-9xl text-secondary" data-icon="verified">verified</span>
+</div>
+<!-- Header & Status Pill -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-surface-container-high pb-2.5">
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Live Intake State</span>
+<h3 class="font-headline-sm text-headline-sm text-primary">Status: Report Registered — Action will be taken soon</h3>
+</div>
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-low border border-secondary/40 text-secondary font-label-sm text-label-sm font-bold w-fit">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-secondary"></span>
+</span>
+          Under Active Review by Ward 178 Rapid Cell
+        </div>
+</div>
+<!-- Timeframe Badge & Progress Indicator -->
+<div class="flex items-center gap-3 bg-surface-container-low p-2.5 rounded-lg border border-outline-variant/30">
+<div class="w-9 h-9 rounded-full bg-secondary text-surface-bright flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-xl" data-icon="timer">timer</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-bold text-primary">Estimated inspection team dispatch within 30 mins</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Rapid Cell #04 is 1.2 km away on Velachery Main Corridor</span>
+</div>
+</div>
+<!-- Live Pipeline Stepper -->
+<div class="grid grid-cols-3 gap-2 pt-1 text-center">
+<div class="flex flex-col items-center">
+<div class="w-6 h-6 rounded-full bg-secondary text-surface-bright flex items-center justify-center text-xs mb-1">✓</div>
+<span class="text-label-sm font-label-sm font-semibold text-primary">Registered</span>
+<span class="text-[10px] text-on-surface-variant">09:14 AM</span>
+</div>
+<div class="flex flex-col items-center">
+<div class="w-6 h-6 rounded-full bg-secondary-fixed text-primary flex items-center justify-center text-xs mb-1 font-bold">2</div>
+<span class="text-label-sm font-label-sm font-semibold text-secondary">Rapid Cell Triage</span>
+<span class="text-[10px] text-secondary font-medium">In Progress</span>
+</div>
+<div class="flex flex-col items-center">
+<div class="w-6 h-6 rounded-full bg-surface-container text-on-surface-variant flex items-center justify-center text-xs mb-1 font-bold">3</div>
+<span class="text-label-sm font-label-sm text-on-surface-variant">Field Clearance</span>
+<span class="text-[10px] text-on-surface-variant">Pending</span>
+</div>
+</div>
+</section>
+<!-- 4. AI Handoff & Confirmation Section -->
+<section class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 p-space-md shadow-sm flex flex-col gap-space-md">
+<!-- Card Title & Ref Code -->
+<div class="flex items-center justify-between border-b border-surface-container-high pb-2">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-secondary" data-icon="smart_toy">smart_toy</span>
+<h3 class="font-headline-sm text-headline-sm text-primary">AI Handoff &amp; Automated Dispatch</h3>
+</div>
+<div class="flex items-center gap-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Tracking Ref:</span>
+<span class="font-mono text-label-md font-label-md font-bold text-primary bg-surface-container px-2 py-0.5 rounded">#CS-8921-REP</span>
+</div>
+</div>
+<!-- AI Analysis Result Card -->
+<div class="bg-surface-container-low rounded-lg p-3 border border-outline-variant/30 flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md font-bold text-primary flex items-center gap-1">
+<span class="material-symbols-outlined text-secondary text-base" data-icon="psychology">psychology</span>
+            AI Analysis Complete: Categorized as Urban Flooding &amp; Drainage Hazard
+          </span>
+<span class="bg-surface-container-highest text-secondary text-label-sm font-label-sm px-2 py-0.5 rounded-full font-bold">
+            94% confidence
+          </span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+          Vision model classified road immersion depth (~18cm), culvert sedimentation risk, and high-frequency vehicle skidding probability on 100ft Bypass Road.
+        </p>
+</div>
+<!-- Automated Next Steps Checklist -->
+<div class="flex flex-col gap-2">
+<h4 class="font-label-md text-label-md font-bold text-primary uppercase tracking-wider">Automated Next Steps:</h4>
+<ul class="flex flex-col gap-2 text-body-sm font-body-sm text-on-surface">
+<li class="flex items-start gap-2 bg-surface-bright p-2 rounded border border-outline-variant/20">
+<span class="material-symbols-outlined text-secondary text-lg mt-0.5" data-icon="grain">grain</span>
+<div class="">
+<strong class="font-semibold text-primary">Incident clustered with 142 neighbor reports</strong> in Ward 178 polygon. Severity weighted as critical drainage intersection.
+            </div>
+</li>
+<li class="flex items-start gap-2 bg-surface-bright p-2 rounded border border-outline-variant/20">
+<span class="material-symbols-outlined text-secondary text-lg mt-0.5" data-icon="local_shipping">local_shipping</span>
+<div class="">
+<strong class="font-semibold text-primary">Alert dispatched to GCDA Emergency Drainage Unit #04</strong> with real-time GPS coordinates and route optimization.
+            </div>
+</li>
+<li class="flex items-start gap-2 bg-surface-bright p-2 rounded border border-outline-variant/20">
+<span class="material-symbols-outlined text-secondary text-lg mt-0.5" data-icon="mark_chat_unread">mark_chat_unread</span>
+<div class="">
+<strong class="font-semibold text-primary">Real-time updates will be sent to your tracking link</strong> via SMS and citizen notification feed as field crew checks in.
+            </div>
+</li>
+</ul>
+</div>
+<!-- Action Buttons within card -->
+<div class="flex items-center gap-2 pt-1">
+<button class="flex-1 py-2 px-3 border border-secondary text-secondary hover:bg-surface-container-low rounded font-label-md text-label-md font-semibold flex items-center justify-center gap-1.5 active:scale-95 transition-all" type="button">
+<span class="material-symbols-outlined text-sm" data-icon="share">share</span>
+          Share Ward Alert
+        </button>
+<button class="flex-1 py-2 px-3 bg-primary-container text-surface-bright hover:bg-secondary rounded font-label-md text-label-md font-semibold flex items-center justify-center gap-1.5 active:scale-95 transition-all" type="button">
+<span class="material-symbols-outlined text-sm" data-icon="map">map</span>
+          View on Live Map
+        </button>
+</div>
+</section>
+</main>
+<!-- 5. Bottom Navigation Bar: Shared Component Anchor -->
+<!-- Active state is strictly set to 'Report' based on user intent and JSON definition -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-space-xs py-space-xs pb-safe bg-surface-container-lowest dark:bg-primary-container shadow-[0_-2px_12px_rgba(20,45,58,0.06)] dark:shadow-none">
+<!-- Destination 1: Overview -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-primary-container font-normal p-space-xs hover:text-secondary dark:hover:text-secondary-fixed transition-colors duration-150 active:scale-95" href="#">
+<span class="material-symbols-outlined text-2xl" data-icon="dashboard">dashboard</span>
+<span class="text-label-sm font-label-sm mt-0.5">Overview</span>
+</a>
+<!-- Destination 2: Map -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-primary-container font-normal p-space-xs hover:text-secondary dark:hover:text-secondary-fixed transition-colors duration-150 active:scale-95" href="#">
+<span class="material-symbols-outlined text-2xl" data-icon="map">map</span>
+<span class="text-label-sm font-label-sm mt-0.5">Map</span>
+</a>
+<!-- Destination 3: Report (ACTIVE STATE) -->
+<a aria-current="page" class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed font-semibold p-space-xs active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined text-2xl" data-icon="add_circle" data-weight="fill">add_circle</span>
+<span class="text-label-sm font-label-sm mt-0.5 font-bold">Report</span>
+</a>
+<!-- Destination 4: Risk -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-primary-container font-normal p-space-xs hover:text-secondary dark:hover:text-secondary-fixed transition-colors duration-150 active:scale-95" href="#">
+<span class="material-symbols-outlined text-2xl" data-icon="analytics">analytics</span>
+<span class="text-label-sm font-label-sm mt-0.5">Risk</span>
+</a>
+<!-- Destination 5: Resolution -->
+
+</nav>
+
+
+</body></html>
