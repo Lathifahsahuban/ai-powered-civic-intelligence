@@ -121,7 +121,7 @@ async function start(){
   }else if(process.env.API_ONLY!=='true'){
     app.use(express.static(path.join(root,'dist')));app.get('*',(_req,res)=>res.sendFile(path.join(root,'dist/index.html')));
   }
-  const server=app.listen(port,'127.0.0.1',()=>console.log(`Civic Intelligence: http://localhost:${port} (${process.env.AI_PROVIDER||'rules'})`));
+  const server=app.listen(port,'0.0.0.0',()=>console.log(`Civic Intelligence: http://localhost:${port} (${process.env.AI_PROVIDER||'rules'})`));
   const shutdown=()=>server.close(async()=>{await vite?.close();store.close();process.exit(0);});
   process.on('SIGTERM',shutdown);process.on('SIGINT',shutdown);server.on('error',err=>{store.close();console.error(err);process.exit(1);});
 }
